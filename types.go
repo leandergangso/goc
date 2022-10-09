@@ -1,4 +1,4 @@
-package command
+package goc
 
 type FileData struct {
 	CalendarId  string

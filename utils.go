@@ -1,16 +1,15 @@
-package command
+package goc
 
 import (
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/LeanderGangso/goc/api"
 	"google.golang.org/api/calendar/v3"
 )
 
 func insertToCalendar(calId string, newEvent *calendar.Event) {
-	client := api.GetClient()
+	client := GetClient()
 	event, err := client.Events.Insert(calId, newEvent).Do()
 	if err != nil {
 		log.Fatalf("Unable to add event to calendar: %v", err)

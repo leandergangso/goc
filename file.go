@@ -1,4 +1,4 @@
-package command
+package goc
 
 import (
 	"encoding/json"

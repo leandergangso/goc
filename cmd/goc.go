@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/LeanderGangso/goc/command"
+	"github.com/LeanderGangso/goc"
 	"github.com/urfave/cli"
 )
 
@@ -30,26 +30,26 @@ func commands() {
 		{
 			Name:   "setup",
 			Usage:  "Setup Google calendar credentials",
-			Action: command.GoogleAuth,
+			Action: goc.GoogleAuth,
 		},
 		{
 			Name:      "start",
 			Aliases:   []string{"s"},
 			Usage:     "Start tracking new task",
 			ArgsUsage: "'Task name'",
-			Action:    command.StartTask,
+			Action:    goc.StartTask,
 		},
 		{
 			Name:    "end",
 			Aliases: []string{"e"},
 			Usage:   "End the currently tracked task",
-			Action:  command.EndTask,
+			Action:  goc.EndTask,
 		},
 		{
 			Name:    "status",
 			Aliases: []string{"st"},
 			Usage:   "Get current task status.",
-			Action:  command.TaskStatus,
+			Action:  goc.TaskStatus,
 		},
 	}
 }

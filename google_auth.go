@@ -1,4 +1,4 @@
-package command
+package goc
 
 import (
 	"bufio"
@@ -7,12 +7,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/LeanderGangso/goc/api"
 	"github.com/urfave/cli"
 )
 
 func GoogleAuth(c *cli.Context) {
-	client := api.GetClient()
+	client := GetClient()
 	calList, err := client.CalendarList.List().Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve calendar list: %v", err)

@@ -1,4 +1,4 @@
-package api
+package goc
 
 import (
 	"context"
