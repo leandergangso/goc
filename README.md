@@ -10,5 +10,15 @@ Simple CLI for tracking work hours into Google calendar.
 - Setup and download the Google [credentials.json](https://console.cloud.google.com/apis/credentials) file
   - Need to rename it to `credentials.json` after you have installed in from Google
   - Move the file into `$HOME/.goc_cli`
-- Reset(close/open) terminal window for changes to take effect
+- Reset(close/reopen) terminal window for changes to take effect
 - Run `goc` to see help and usage, and `goc help COMMAND` to see command info
+
+## Setup (Other)
+
+If you want to use this on Max and Windows, you need to make some changes.
+This includes, but may not be limited to the following:
+
+- You need to build the executable on your own, the one in the **release** page will not work
+  - Need `go` installed on your system
+  - Run `go build cmd/goc.go` to build the executable
+- The `$HOME` environment variable is used, if your system don't support this, you can hardcode a path instead of $HOME
