@@ -15,7 +15,7 @@ import (
 
 func GetClient() *calendar.Service {
 	config := getConfig()
-	tokFile := "token.json"
+	tokFile := SHARED_PATH + "token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -30,7 +30,7 @@ func GetClient() *calendar.Service {
 }
 
 func getCredentials() []byte {
-	b, err := os.ReadFile("credentials.json")
+	b, err := os.ReadFile(SHARED_PATH + "credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}

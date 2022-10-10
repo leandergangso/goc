@@ -6,10 +6,12 @@ import (
 	"os"
 )
 
-const fileName = "goc_data.json"
+var SHARED_PATH = os.Getenv("HOME") + "/.goc_cli/"
+var FILE_NAME = "data.json"
 
 func readFile() *FileData {
-	f, err := os.Open(fileName)
+	path := SHARED_PATH + FILE_NAME
+	f, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("Unable to open file: %v", err)
 	}
@@ -23,7 +25,8 @@ func readFile() *FileData {
 }
 
 func writeToFile(data *FileData) {
-	f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	path := SHARED_PATH + FILE_NAME
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Unable to open file: %v", err)
 	}
