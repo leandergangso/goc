@@ -37,6 +37,10 @@ func EndTask(c *cli.Context) {
 
 	newEvent := createEvent(data)
 	insertToCalendar(data.CalendarId, newEvent)
+	data.CurrentTask.Name = ""
+	data.CurrentTask.Start = ""
+	writeToFile(data)
+
 	fmt.Println("Old task ended: " + data.CurrentTask.Name)
 }
 
