@@ -1,4 +1,4 @@
-# goc
+# Google Calendar CLI
 
 Simple CLI for tracking work hours into Google calendar.
 
