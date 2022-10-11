@@ -104,7 +104,7 @@ func EditCurrentTask(c *cli.Context) {
 	if start != "" {
 		start = stringToTime(start)
 		data.CurrentTask.Start = start
-		fmt.Println("New start time set: " + start)
+		fmt.Println("New start time set: " + formatTimeString(start))
 	}
 
 	writeToFile(data)
@@ -118,7 +118,6 @@ func TaskStatus(c *cli.Context) {
 		return
 	}
 
-	tdata := strings.Split(data.CurrentTask.Start, "T")
-	t := fmt.Sprintf("%v %v", tdata[0], strings.Split(tdata[1], "+")[0][:5])
+	t := formatTimeString(data.CurrentTask.Start)
 	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
 }

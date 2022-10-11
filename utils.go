@@ -3,6 +3,7 @@ package goc
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"google.golang.org/api/calendar/v3"
@@ -46,4 +47,9 @@ func stringToTime(s string) string {
 		log.Fatalf("Unable to parse time: %v", err)
 	}
 	return t.Format(time.RFC3339)
+}
+
+func formatTimeString(s string) string {
+	data := strings.Split(s, "T")
+	return fmt.Sprintf("%v %v", data[0], strings.Split(data[1], "+")[0][:5])
 }
