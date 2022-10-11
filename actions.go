@@ -118,5 +118,7 @@ func TaskStatus(c *cli.Context) {
 		return
 	}
 
-	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + data.CurrentTask.Start)
+	tdata := strings.Split(data.CurrentTask.Start, "T")
+	t := fmt.Sprintf("%v %v", tdata[0], strings.Split(tdata[1], "+")[0][:5])
+	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
 }
