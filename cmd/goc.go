@@ -29,8 +29,8 @@ func commands() {
 	app.Commands = []cli.Command{
 		{
 			Name:   "setup",
-			Usage:  "Setup Google calendar credentials",
-			Action: goc.GoogleAuth,
+			Usage:  "Setup Google calendar",
+			Action: goc.GoogleSetup,
 		},
 		{
 			Name:      "start",
@@ -43,7 +43,29 @@ func commands() {
 			Name:    "end",
 			Aliases: []string{"e"},
 			Usage:   "End the currently tracked task",
-			Action:  goc.EndTask,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "t",
+					Usage: "Set end time for task (HH:MM)",
+				},
+			},
+			Action: goc.EndTask,
+		},
+		{
+			Name:    "update",
+			Aliases: []string{"u"},
+			Usage:   "Update the current task",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "n",
+					Usage: "Set new task name",
+				},
+				cli.StringFlag{
+					Name:  "t",
+					Usage: "Set new task time (HH:MM)",
+				},
+			},
+			Action: goc.EditCurrentTask,
 		},
 		{
 			Name:    "status",
