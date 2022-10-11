@@ -43,6 +43,13 @@ func StartTask(c *cli.Context) {
 		name = c.Args()[0]
 	}
 
+	startTime := c.String("t")
+	if startTime == "" {
+		startTime = getTime()
+	} else {
+		startTime = stringToTime(startTime)
+	}
+
 	data := readFile()
 
 	if data.CurrentTask.Name != "" {
@@ -52,7 +59,7 @@ func StartTask(c *cli.Context) {
 	}
 
 	data.CurrentTask.Name = name
-	data.CurrentTask.Start = getTime()
+	data.CurrentTask.Start = startTime
 	writeToFile(data)
 
 	fmt.Println("New task started: " + name)

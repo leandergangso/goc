@@ -37,7 +37,13 @@ func commands() {
 			Aliases:   []string{"s"},
 			Usage:     "Start tracking new task",
 			ArgsUsage: "'Task name'",
-			Action:    goc.StartTask,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "t",
+					Usage: "Set start time for task (HH:MM)",
+				},
+			},
+			Action: goc.StartTask,
 		},
 		{
 			Name:    "end",
