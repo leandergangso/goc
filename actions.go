@@ -110,6 +110,25 @@ func EditCurrentTask(c *cli.Context) {
 	writeToFile(data)
 }
 
+func InsertTask(c *cli.Context) {
+	if c.NArg() > 3 {
+		log.Fatal("Missing required arguments")
+	}
+
+	name := c.Args()[0]
+	startTime := stringToTime(c.Args()[1])
+	endTime := stringToTime(c.Args()[2])
+
+	data := readFile()
+	data.CurrentTask.Name = name
+	data.CurrentTask.Start = startTime
+
+	newEvent := createEvent(data, endTime)
+	event := insertToCalendar(data.CalendarId, newEvent)
+
+	fmt.Println("Task addded to calendar:", event.HtmlLink)
+}
+
 func TaskStatus(c *cli.Context) {
 	data := readFile()
 
