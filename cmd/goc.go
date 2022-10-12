@@ -36,7 +36,7 @@ func commands() {
 			Name:      "start",
 			Aliases:   []string{"s"},
 			Usage:     "Start tracking new task",
-			ArgsUsage: "'Name'",
+			ArgsUsage: "'name'",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "t",
@@ -77,7 +77,7 @@ func commands() {
 			Name:      "insert",
 			Aliases:   []string{"i"},
 			Usage:     "Insert task directly to calendar",
-			ArgsUsage: "'Name' Start(HH:MM) End(HH:MM)",
+			ArgsUsage: "'name' start(HH:MM) end(HH:MM)",
 			Action:    goc.InsertTask,
 		},
 		{
