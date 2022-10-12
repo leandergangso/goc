@@ -111,7 +111,7 @@ func EditCurrentTask(c *cli.Context) {
 }
 
 func InsertTask(c *cli.Context) {
-	if c.NArg() > 3 {
+	if c.NArg() < 3 {
 		log.Fatal("Missing required arguments")
 	}
 
