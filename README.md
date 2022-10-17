@@ -4,7 +4,7 @@ Simple CLI for tracking work hours into Google calendar.
 
 ## Setup (Linux)
 
-- Download the latest `goc` file from the **release** page
+- Download the latest `goc` file from the **release** page or clone this repo and build it yourself
 - Make sure `goc` is executable, if not run: `chmod +x goc`
 - Move the `goc` file into `/usr/local/bin`
 - Setup and download the Google [credentials.json](https://console.cloud.google.com/apis/credentials) file
