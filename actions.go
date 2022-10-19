@@ -54,7 +54,7 @@ func StartTask(c *cli.Context) {
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, getTime())
 		event := insertToCalendar(data.CalendarId, newEvent)
-		updatePrevTaskAlias(data.CurrentTask.Name, data)
+		updatePrevTaskAlias(data)
 		fmt.Println("Previous task added to calendar:", event.HtmlLink)
 	}
 
@@ -82,7 +82,7 @@ func EndTask(c *cli.Context) {
 
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data.CalendarId, newEvent)
-	updatePrevTaskAlias(data.CurrentTask.Name, data)
+	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
 	writeToFile(data)
 
