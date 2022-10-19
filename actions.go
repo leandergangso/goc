@@ -54,6 +54,7 @@ func StartTask(c *cli.Context) {
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, getTime())
 		event := insertToCalendar(data.CalendarId, newEvent)
+		updatePrevTaskAlias(data.CurrentTask.Name, data)
 		fmt.Println("Previous task added to calendar:", event.HtmlLink)
 	}
 
@@ -81,6 +82,7 @@ func EndTask(c *cli.Context) {
 
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data.CalendarId, newEvent)
+	updatePrevTaskAlias(data.CurrentTask.Name, data)
 	data.CurrentTask.Reset()
 	writeToFile(data)
 
@@ -141,9 +143,9 @@ func AddTaskAlias(c *cli.Context) {
 		data.TaskAlias = make(map[string]string)
 	}
 	data.TaskAlias[aliasName] = taskName
-	fmt.Println("Alias added:", aliasName+": "+taskName)
-
 	writeToFile(data)
+
+	fmt.Println("Alias added:", aliasName+": "+taskName)
 }
 
 func DelTaskAlias(c *cli.Context) {
@@ -159,9 +161,9 @@ func DelTaskAlias(c *cli.Context) {
 	}
 
 	delete(data.TaskAlias, aliasName)
-	fmt.Println("Alias deleted:", aliasName)
-
 	writeToFile(data)
+
+	fmt.Println("Alias deleted:", aliasName)
 }
 
 func ShowAlias(c *cli.Context) {
