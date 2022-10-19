@@ -37,11 +37,12 @@ func GoogleSetup(c *cli.Context) {
 }
 
 func StartTask(c *cli.Context) {
-	name := "Working"
-
-	if c.NArg() > 0 {
-		name = c.Args()[0]
+	if c.NArg() < 1 {
+		log.Fatal("Missing required argument")
 	}
+
+	data := readFile()
+	name := checkAndUseAlias(c.Args()[0], data)
 
 	startTime := c.String("t")
 	if startTime == "" {
@@ -49,8 +50,6 @@ func StartTask(c *cli.Context) {
 	} else {
 		startTime = stringToTime(startTime)
 	}
-
-	data := readFile()
 
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, getTime())
@@ -94,7 +93,7 @@ func EditCurrentTask(c *cli.Context) {
 	}
 
 	data := readFile()
-	name := c.String("n")
+	name := checkAndUseAlias(c.String("n"), data)
 	start := c.String("t")
 
 	if name != "" {
@@ -115,11 +114,11 @@ func InsertTask(c *cli.Context) {
 		log.Fatal("Missing required arguments")
 	}
 
-	name := c.Args()[0]
+	data := readFile()
+	name := checkAndUseAlias(c.Args()[0], data)
 	startTime := stringToTime(c.Args()[1])
 	endTime := stringToTime(c.Args()[2])
 
-	data := readFile()
 	data.CurrentTask.Name = name
 	data.CurrentTask.Start = startTime
 
@@ -129,12 +128,61 @@ func InsertTask(c *cli.Context) {
 	fmt.Println("Task addded to calendar:", event.HtmlLink)
 }
 
+func AddTaskAlias(c *cli.Context) {
+	if c.NArg() < 2 {
+		log.Fatal("Missing required arguments")
+	}
+
+	taskName := c.Args()[0]
+	aliasName := c.Args()[1]
+
+	data := readFile()
+	if data.TaskAlias == nil {
+		data.TaskAlias = make(map[string]string)
+	}
+	data.TaskAlias[aliasName] = taskName
+	fmt.Println("Alias added:", aliasName+": "+taskName)
+
+	writeToFile(data)
+}
+
+func DelTaskAlias(c *cli.Context) {
+	if c.NArg() < 1 {
+		log.Fatal("Missing required argument")
+	}
+
+	aliasName := c.Args()[0]
+	data := readFile()
+
+	if data.TaskAlias[aliasName] == "" {
+		log.Fatal("Alias does not exist")
+	}
+
+	delete(data.TaskAlias, aliasName)
+	fmt.Println("Alias deleted:", aliasName)
+
+	writeToFile(data)
+}
+
+func ShowAlias(c *cli.Context) {
+	data := readFile()
+
+	if len(data.TaskAlias) == 0 {
+		log.Fatal("No alias exist at the moment...")
+	}
+
+	fmt.Println("Alias list:\n-----------")
+
+	for key, val := range data.TaskAlias {
+		fmt.Println(key + ": " + val)
+	}
+}
+
 func TaskStatus(c *cli.Context) {
 	data := readFile()
 
 	if data.CurrentTask.Name == "" {
-		fmt.Println("No task exist at the moment...")
-		return
+		log.Fatal("No task exist at the moment...")
 	}
 
 	t := formatTimeString(data.CurrentTask.Start)

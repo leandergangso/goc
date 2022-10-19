@@ -53,3 +53,12 @@ func formatTimeString(s string) string {
 	data := strings.Split(s, "T")
 	return fmt.Sprintf("%v %v", data[0], strings.Split(data[1], "+")[0][:5])
 }
+
+func checkAndUseAlias(name string, data *FileData) string {
+	aliasName := data.TaskAlias[name]
+	if aliasName != "" {
+		fmt.Println("Using alias:", aliasName)
+		return aliasName
+	}
+	return name
+}

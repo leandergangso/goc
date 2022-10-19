@@ -81,6 +81,25 @@ func commands() {
 			Action:    goc.InsertTask,
 		},
 		{
+			Name:      "alias",
+			Aliases:   []string{"a"},
+			Usage:     "Add alias to task",
+			ArgsUsage: "'task' 'alias'",
+			Action:    goc.AddTaskAlias,
+		},
+		{
+			Name:    "remove",
+			Aliases: []string{"r"},
+			Usage:   "Remove an alias",
+			Action:  goc.DelTaskAlias,
+		},
+		{
+			Name:    "list",
+			Aliases: []string{"l"},
+			Usage:   "List all aliases",
+			Action:  goc.ShowAlias,
+		},
+		{
 			Name:    "status",
 			Aliases: []string{"st"},
 			Usage:   "Get current task status",

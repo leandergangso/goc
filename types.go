@@ -3,6 +3,7 @@ package goc
 type FileData struct {
 	CalendarId  string
 	CurrentTask DataTask
+	TaskAlias   map[string]string
 }
 
 type DataTask struct {
