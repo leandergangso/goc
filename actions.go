@@ -28,12 +28,16 @@ func GoogleSetup(c *cli.Context) {
 	calId, _ := reader.ReadString('\n')
 	calId = strings.Replace(calId, "\n", "", -1)
 
-	data := &FileData{
-		CalendarId: calId,
+	data := readFile()
+
+	if calId == "" {
+		log.Fatalf("Skipped, currently using: %v", data.CalendarId)
 	}
+
+	data.CalendarId = calId
 	writeToFile(data)
 
-	fmt.Println("You are ready to start tracking!")
+	fmt.Println("Calendar ID added, you are ready to start tracking!")
 }
 
 func StartTask(c *cli.Context) {
@@ -135,8 +139,8 @@ func AddTaskAlias(c *cli.Context) {
 		log.Fatal("Missing required arguments")
 	}
 
-	taskName := c.Args()[0]
-	aliasName := c.Args()[1]
+	aliasName := c.Args()[0]
+	taskName := c.Args()[1]
 
 	data := readFile()
 	if data.TaskAlias == nil {

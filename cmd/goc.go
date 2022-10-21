@@ -84,7 +84,7 @@ func commands() {
 			Name:      "alias",
 			Aliases:   []string{"a"},
 			Usage:     "Add alias to task",
-			ArgsUsage: "'task' 'alias'",
+			ArgsUsage: "'alias' 'task'",
 			Action:    goc.AddTaskAlias,
 		},
 		{

@@ -29,7 +29,7 @@ func GetClient() *calendar.Service {
 func getConfig() *oauth2.Config {
 	b := getCredentials()
 	// Need to delete token.json on a scope change
-	config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
+	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope, calendar.CalendarEventsScope)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
