@@ -9,7 +9,10 @@ Simple CLI for tracking work hours into Google calendar.
 - Move the `goc` file into `/usr/local/bin` or any other folder that is in your `$PATH`
 - Setup and download the Google credentials.json file [here](https://console.cloud.google.com/apis/credentials)
   - Create a new project
-  - Setup OAuth consent screen (only need to fill out the required fields)
+  - Setup OAuth consent screen
+    - Fill out all required fields
+    - For scopes, add `calendarlist.readonly` and `calendar.events`
+    - For test users, add your own email
   - Click on credentials and create credentials then select OAuth client ID
   - Set application type to Desktop app and follow the steps
   - Choose download JSON after creating the credential
