@@ -31,7 +31,8 @@ func GoogleSetup(c *cli.Context) {
 	data := readFile()
 
 	if calId == "" {
-		log.Fatalf("Skipped, currently using: %v", data.CalendarId)
+		fmt.Printf("Skipped, currently using: %v", data.CalendarId)
+		os.Exit(0)
 	}
 
 	data.CalendarId = calId
@@ -161,7 +162,8 @@ func DelTaskAlias(c *cli.Context) {
 	data := readFile()
 
 	if data.TaskAlias[aliasName] == "" {
-		log.Fatal("Alias does not exist")
+		fmt.Println("Alias does not exist")
+		os.Exit(0)
 	}
 
 	delete(data.TaskAlias, aliasName)
@@ -174,7 +176,8 @@ func ShowAlias(c *cli.Context) {
 	data := readFile()
 
 	if len(data.TaskAlias) == 0 {
-		log.Fatal("No alias exist at the moment...")
+		fmt.Println("No alias exist at the moment...")
+		os.Exit(0)
 	}
 
 	fmt.Println("Alias list:\n-----------")
@@ -188,7 +191,8 @@ func TaskStatus(c *cli.Context) {
 	data := readFile()
 
 	if data.CurrentTask.Name == "" {
-		log.Fatal("No task exist at the moment...")
+		fmt.Println("No task exist at the moment...")
+		os.Exit(0)
 	}
 
 	t := formatTimeString(data.CurrentTask.Start)
