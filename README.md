@@ -27,3 +27,47 @@ This includes, but may not be limited to the following:
   - Need `go` installed on your system
   - Run `go build cmd/goc.go` to build the executable
 - The `$HOME` environment variable is used, if your system don't support this, you can hardcode a path instead of $HOME
+
+## Usage examples
+
+See help:
+```bash
+// show help
+goc
+// show command help
+goc help start
+// show help for start command
+goc help start
+```
+
+Basic usage:
+```bash
+// start task at the current time
+goc start 'task name'
+// see status of current task
+goc status
+// end current task at the current time
+goc end
+```
+
+Custom times (format: HH:MM):
+```bash
+// start task at a different time
+goc start 'task name' -t 8:00
+// start new task that will end the previous task
+goc start 'new task' -t 10:00
+// end current task at a different time
+goc end -t 16:00
+```
+
+Alias usage:
+```bash
+// list aliases
+goc list
+// new alias
+goc alias 'alias name' 'task name'
+// use alias
+goc start 'alias name'
+// remove alias
+goc remove 'alias name'
+```
