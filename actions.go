@@ -60,7 +60,7 @@ func StartTask(c *cli.Context) {
 		newEvent := createEvent(data, startTime)
 		event := insertToCalendar(data.CalendarId, newEvent)
 		updatePrevTaskAlias(data)
-		fmt.Println("Previous task added to calendar:", event.HtmlLink)
+		fmt.Println("Task added to calendar:", event.HtmlLink)
 	}
 
 	data.CurrentTask.Name = name
