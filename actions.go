@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -206,6 +207,24 @@ func TaskStatus(c *cli.Context) {
 		os.Exit(0)
 	}
 
+	start, err := time.Parse(time.RFC3339, data.CurrentTask.Start)
+
+	if (err != nil) {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	duration := time.Since(start).Round(time.Second)
+
+	if (c.Bool("oneline")) {
+		fmt.Printf("%s (%v)", data.CurrentTask.Name, duration)
+
+		os.Exit(0)
+	}
+
 	t := formatTimeString(data.CurrentTask.Start)
-	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
+	fmt.Println("Task status:\n------------")
+	fmt.Println("Name:", data.CurrentTask.Name)
+	fmt.Println("Start:", t)
+	fmt.Println("Duration:", duration)
 }
