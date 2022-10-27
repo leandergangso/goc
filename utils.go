@@ -10,7 +10,7 @@ import (
 )
 
 // magic reference: Mon Jan 2 15:04:05 MST 2006
-var TIME_FORMAT = "2006-01-02 15:04 MST"
+var TIME_FORMAT = time.RFC3339
 
 func insertToCalendar(calId string, newEvent *calendar.Event) *calendar.Event {
 	client := GetClient()
@@ -36,17 +36,17 @@ func createEvent(data *FileData, endTime string) *calendar.Event {
 }
 
 func getTime() string {
-	return time.Now().Format(time.RFC3339)
+	return time.Now().Format(TIME_FORMAT)
 }
 
 func stringToTime(s string) string {
 	now := time.Now()
 	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, "CEST")
-	t, err := time.Parse(TIME_FORMAT, fs)
+	t, err := time.Parse("2006-01-02 15:04 MST", fs)
 	if err != nil {
 		log.Fatalf("Unable to parse time: %v", err)
 	}
-	return t.Format(time.RFC3339)
+	return t.Format(TIME_FORMAT)
 }
 
 func formatTimeString(s string) string {
