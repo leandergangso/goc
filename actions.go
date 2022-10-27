@@ -43,7 +43,8 @@ func GoogleSetup(c *cli.Context) {
 
 func StartTask(c *cli.Context) {
 	if c.NArg() < 1 {
-		log.Fatal("Missing required argument")
+		cli.ShowSubcommandHelp(c)
+		os.Exit(0)
 	}
 
 	data := readFile()
@@ -96,7 +97,8 @@ func EndTask(c *cli.Context) {
 
 func EditCurrentTask(c *cli.Context) {
 	if c.NumFlags() == 0 {
-		log.Fatal("Missing at least one flag")
+		cli.ShowSubcommandHelp(c)
+		os.Exit(0)
 	}
 
 	data := readFile()
@@ -118,7 +120,8 @@ func EditCurrentTask(c *cli.Context) {
 
 func InsertTask(c *cli.Context) {
 	if c.NArg() < 3 {
-		log.Fatal("Missing required arguments")
+		cli.ShowSubcommandHelp(c)
+		os.Exit(0)
 	}
 
 	data := readFile()
@@ -137,7 +140,8 @@ func InsertTask(c *cli.Context) {
 
 func AddTaskAlias(c *cli.Context) {
 	if c.NArg() < 2 {
-		log.Fatal("Missing required arguments")
+		cli.ShowSubcommandHelp(c)
+		os.Exit(0)
 	}
 
 	aliasName := c.Args()[0]
@@ -155,7 +159,8 @@ func AddTaskAlias(c *cli.Context) {
 
 func DelTaskAlias(c *cli.Context) {
 	if c.NArg() < 1 {
-		log.Fatal("Missing required argument")
+		cli.ShowSubcommandHelp(c)
+		os.Exit(0)
 	}
 
 	aliasName := c.Args()[0]
