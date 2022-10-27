@@ -63,7 +63,18 @@ func checkAndUseAlias(name string, data *FileData) string {
 }
 
 func updatePrevTaskAlias(data *FileData) {
-	data.TaskAlias["prev3"] = data.TaskAlias["prev2"]
-	data.TaskAlias["prev2"] = data.TaskAlias["prev"]
+
+	if _, ok := data.TaskAlias["prev2"]; ok {
+		data.TaskAlias["prev3"] = data.TaskAlias["prev2"]
+	}
+
+	if _, ok := data.TaskAlias["prev"]; ok {
+		data.TaskAlias["prev2"] = data.TaskAlias["prev"]
+	}
+
+	if data.TaskAlias == nil {
+		data.TaskAlias = make(map[string]string)
+	}
+
 	data.TaskAlias["prev"] = data.CurrentTask.Name
 }
