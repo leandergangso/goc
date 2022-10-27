@@ -182,7 +182,17 @@ func ShowAlias(c *cli.Context) {
 
 	fmt.Println("Alias list:\n-----------")
 
+	prevTasks := make(map[string]string)
+
 	for key, val := range data.TaskAlias {
+		if strings.Contains(key, "prev") {
+			prevTasks[key] = val
+		} else {
+			fmt.Println(key + ": " + val)
+		}
+	}
+	fmt.Println()
+	for key, val := range prevTasks {
 		fmt.Println(key + ": " + val)
 	}
 }
