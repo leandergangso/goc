@@ -191,10 +191,11 @@ func ShowAlias(c *cli.Context) {
 			fmt.Println(key + ": " + val)
 		}
 	}
+
 	fmt.Println()
-	for key, val := range prevTasks {
-		fmt.Println(key + ": " + val)
-	}
+	fmt.Println("prev" + ": " + data.TaskAlias["prev"])
+	fmt.Println("prev2" + ": " + data.TaskAlias["prev2"])
+	fmt.Println("prev3" + ": " + data.TaskAlias["prev3"])
 }
 
 func TaskStatus(c *cli.Context) {
