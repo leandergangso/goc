@@ -57,7 +57,6 @@ func formatTimeString(s string) string {
 func checkAndUseAlias(name string, data *FileData) string {
 	aliasName := data.TaskAlias[name]
 	if aliasName != "" {
-		fmt.Println("Using alias:", aliasName)
 		return aliasName
 	}
 	return name
