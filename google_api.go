@@ -28,6 +28,7 @@ func GetClient() *calendar.Service {
 
 func getConfig() *oauth2.Config {
 	b := getCredentials()
+
 	// Need to delete token.json on a scope change
 	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope, calendar.CalendarEventsScope)
 	if err != nil {
@@ -42,6 +43,9 @@ func getToken(config *oauth2.Config) *oauth2.Token {
 	if err != nil {
 		tok = getTokenFromWeb(config)
 		saveToken(tokFile, tok)
+
+		fmt.Println("Run setup again to select calendar")
+		os.Exit(0)
 	}
 
 	source := config.TokenSource(context.Background(), tok)
@@ -60,14 +64,39 @@ func getToken(config *oauth2.Config) *oauth2.Token {
 func getCredentials() []byte {
 	b, err := os.ReadFile(SHARED_PATH + "credentials.json")
 	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+		writeCredentialsInstructionsAndExit()
 	}
 	return b
 }
 
+func writeCredentialsInstructionsAndExit() {
+	if _, err := os.Stat(SHARED_PATH); os.IsNotExist(err) {
+		if err := os.Mkdir(SHARED_PATH, os.ModePerm); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println("Setup and download the Google credentials.json file here: https://console.cloud.google.com/apis/credentials")
+	fmt.Println("- Create a new project")
+	fmt.Println("- Setup OAuth consent screen")
+	fmt.Println("- Fill out all required fields")
+	fmt.Println("- For scopes, add `calendarlist.readonly` and `calendar.events`")
+	fmt.Println("- For test users, add your own email")
+	fmt.Println("- Click on credentials and create credentials then select OAuth client ID")
+	fmt.Println("  - Set application type to Desktop app and follow the steps")
+	fmt.Println("  - Choose download JSON after creating the credential")
+	fmt.Println("  - Rename the file you downloaded to `credentials.json`")
+	fmt.Println("  - Move this file into `"+ SHARED_PATH + "`")
+
+	fmt.Println("")
+	fmt.Println("- Run goc setup to continue")
+
+	os.Exit(0)
+}
+
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the link bellow and follow the steps.\n\n%v\n\nPaste the 'code value' from the localhost-URL here: ", authURL)
+	fmt.Printf("Go to the link below and follow the steps.\n\n%v\n\nPaste the 'code' value from the localhost-URL here: ", authURL)
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
