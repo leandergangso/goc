@@ -2,29 +2,19 @@ package goc
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-func setup() {
-	CONFIG_PATH, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatalf("Unable to resolve config dir: %v", err)
-	}
-	fmt.Println("Using path:", CONFIG_PATH)
-}
-
-func GoogleSetup(c *cli.Context) {
+func GoogleSetup(c *cli.Context) error {
 	client := GetClient()
 	calList, err := client.CalendarList.List().Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve calendar list: %v", err)
+		return fmt.Errorf("unable to retrieve calendar list: %v", err)
 	}
 
 	fmt.Println("\nCalendar list:\n--------------")
@@ -38,28 +28,39 @@ func GoogleSetup(c *cli.Context) {
 	calId, _ := reader.ReadString('\n')
 	calId = strings.Replace(calId, "\n", "", -1)
 
-	data := readFile()
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
 
 	if calId == "" {
 		fmt.Printf("Skipped, currently using: %v", data.CalendarId)
-		os.Exit(0)
+		return nil
 	}
 
 	data.CalendarId = calId
-	writeToFile(data)
-
-	fmt.Println("Calendar ID added, you are ready to start tracking!")
-}
-
-func StartTask(c *cli.Context) {
-	if c.NArg() < 1 {
-		log.Fatal("Missing required argument")
+	err = writeToFile(data)
+	if err != nil {
+		return err
 	}
 
-	data := readFile()
-	name := checkAndUseAlias(c.Args()[0], data)
+	fmt.Println("Calendar ID added, you are ready to start tracking!")
+	return nil
+}
 
-	startTime := c.String("t")
+func StartTask(c *cli.Context) error {
+	if c.NArg() < 1 {
+		return fmt.Errorf("missing required argument")
+	}
+
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
+
+	name := checkAndUseAlias(c.Args().Get(0), data)
+
+	startTime := c.String("time")
 	if startTime == "" {
 		startTime = getTime()
 	} else {
@@ -75,20 +76,27 @@ func StartTask(c *cli.Context) {
 
 	data.CurrentTask.Name = name
 	data.CurrentTask.Start = startTime
-	writeToFile(data)
+	err = writeToFile(data)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("New task started: " + name)
+	return nil
 }
 
-func EndTask(c *cli.Context) {
-	data := readFile()
+func EndTask(c *cli.Context) error {
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
 
 	if data.CurrentTask.Name == "" {
 		fmt.Println("No task exist at the moment...")
-		return
+		return nil
 	}
 
-	endTime := c.String("t")
+	endTime := c.String("time")
 	if endTime == "" {
 		endTime = getTime()
 	} else {
@@ -97,44 +105,64 @@ func EndTask(c *cli.Context) {
 
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data.CalendarId, newEvent)
+
 	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
-	writeToFile(data)
+
+	err = writeToFile(data)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Task added to calendar:", event.HtmlLink)
+	return nil
 }
 
-func EditCurrentTask(c *cli.Context) {
+func EditCurrentTask(c *cli.Context) error {
 	if c.NumFlags() == 0 {
 		log.Fatal("Missing at least one flag")
 	}
 
-	data := readFile()
-	name := checkAndUseAlias(c.String("n"), data)
-	start := c.String("t")
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
+
+	name := checkAndUseAlias(c.String("name"), data)
+	start := c.String("time")
 
 	if name != "" {
 		data.CurrentTask.Name = name
 		fmt.Println("New task name set: " + name)
 	}
+
 	if start != "" {
 		start = stringToTime(start)
 		data.CurrentTask.Start = start
 		fmt.Println("New start time set: " + formatTimeString(start))
 	}
 
-	writeToFile(data)
+	err = writeToFile(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func InsertTask(c *cli.Context) {
+func InsertTask(c *cli.Context) error {
 	if c.NArg() < 3 {
 		log.Fatal("Missing required arguments")
 	}
 
-	data := readFile()
-	name := checkAndUseAlias(c.Args()[0], data)
-	startTime := stringToTime(c.Args()[1])
-	endTime := stringToTime(c.Args()[2])
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
+
+	name := checkAndUseAlias(c.Args().Get(0), data)
+	startTime := stringToTime(c.Args().Get(1))
+	endTime := stringToTime(c.Args().Get(2))
 
 	data.CurrentTask.Name = name
 	data.CurrentTask.Start = startTime
@@ -142,34 +170,47 @@ func InsertTask(c *cli.Context) {
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data.CalendarId, newEvent)
 
-	fmt.Println("Task addded to calendar:", event.HtmlLink)
+	fmt.Println("Task added to calendar:", event.HtmlLink)
+	return nil
 }
 
-func AddTaskAlias(c *cli.Context) {
+func AddTaskAlias(c *cli.Context) error {
 	if c.NArg() < 2 {
 		log.Fatal("Missing required arguments")
 	}
 
-	aliasName := c.Args()[0]
-	taskName := c.Args()[1]
+	aliasName := c.Args().Get(0)
+	taskName := c.Args().Get(1)
 
-	data := readFile()
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
+
 	if data.TaskAlias == nil {
 		data.TaskAlias = make(map[string]string)
 	}
+
 	data.TaskAlias[aliasName] = taskName
-	writeToFile(data)
+	err = writeToFile(data)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Alias added:", aliasName+": "+taskName)
+	return nil
 }
 
-func DelTaskAlias(c *cli.Context) {
+func DelTaskAlias(c *cli.Context) error {
 	if c.NArg() < 1 {
 		log.Fatal("Missing required argument")
 	}
 
-	aliasName := c.Args()[0]
-	data := readFile()
+	aliasName := c.Args().Get(0)
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
 
 	if data.TaskAlias[aliasName] == "" {
 		fmt.Println("Alias does not exist")
@@ -177,17 +218,24 @@ func DelTaskAlias(c *cli.Context) {
 	}
 
 	delete(data.TaskAlias, aliasName)
-	writeToFile(data)
+	err = writeToFile(data)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Alias deleted:", aliasName)
+	return nil
 }
 
-func ShowAlias(c *cli.Context) {
-	data := readFile()
+func ShowAlias(c *cli.Context) error {
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
 
 	if len(data.TaskAlias) == 0 {
 		fmt.Println("No alias exist at the moment...")
-		os.Exit(0)
+		return nil
 	}
 
 	fmt.Println("Alias list:\n-----------")
@@ -206,36 +254,56 @@ func ShowAlias(c *cli.Context) {
 	fmt.Println("prev" + ": " + data.TaskAlias["prev"])
 	fmt.Println("prev2" + ": " + data.TaskAlias["prev2"])
 	fmt.Println("prev3" + ": " + data.TaskAlias["prev3"])
+
+	return nil
 }
 
-func TaskStatus(c *cli.Context) {
-	data := readFile()
+func TaskStatus(c *cli.Context) error {
+	data, err := readFile()
+	if err != nil {
+		return err
+	}
 
 	if data.CurrentTask.Name == "" {
 		fmt.Println("No task exist at the moment...")
-		os.Exit(0)
+		return nil
 	}
 
 	t := formatTimeString(data.CurrentTask.Start)
 	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
+
+	return nil
 }
 
-func Update(c *cli.Context) {
-	url := "https://api.github.com/repos/leandergangso/goc/releases/latest"
-	res, err := http.Get(url)
+func Update(c *cli.Context) error {
+	data, err := getLatestRelease()
 	if err != nil {
-		log.Fatalf("Unable to fetch latest release: %v", err)
+		return err
 	}
-	defer res.Body.Close()
 
-	var jsonBody map[string]any
-	err = json.NewDecoder(res.Body).Decode(&jsonBody)
-	if err != nil {
-		log.Fatalf("Unable to read response: %v", err)
+	currentVersion := c.App.Version
+	// if currentVersion == data.Version {
+	// 	fmt.Println("Already using the latest version:", data.Version)
+	// 	return nil
+	// }
+
+	if !c.Bool("force") && isBreakingVersionUpdate(currentVersion, data.Version) {
+		fmt.Println("Next version has breaking changes, use '-f' to force update")
+		fmt.Println("See release notes here:", data.Link)
+		return nil
 	}
-	latestVersion := jsonBody["tag_name"]
-	// link := jsonBody["html_url"]
-	// body := jsonBody["body"]
-	// currentVersion =
-	fmt.Println(latestVersion)
+
+	if len(data.Assets) == 0 {
+		fmt.Println("Asset missing from release, update aborted")
+		return nil
+	}
+
+	err = downloadExe(data.Assets[0].DownloadLink)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Updated from:", currentVersion, "to", data.Version)
+	fmt.Println("Release link:", data.Link)
+	return nil
 }
