@@ -12,12 +12,33 @@ import (
 // magic reference: Mon Jan 2 15:04:05 MST 2006
 var TIME_FORMAT = "2006-01-02 15:04 MST"
 
-func insertToCalendar(calId string, newEvent *calendar.Event) *calendar.Event {
+func insertToCalendar(data *FileData, newEvent *calendar.Event) *calendar.Event {
 	client := GetClient()
-	event, err := client.Events.Insert(calId, newEvent).Do()
+	event, err := client.Events.Insert(data.CalendarId, newEvent).Do()
 	if err != nil {
 		log.Fatalf("Unable to add event to calendar: %v", err)
 	}
+
+	listCall := client.Events.List(data.CalendarId)
+
+	year, month, day := time.Now().Date()
+	min := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
+	listCall.TimeMin(min.Format(time.RFC3339))
+	listCall.TimeMax(getTime())
+
+	result, err := listCall.Do()
+
+	totalDuration := 0.0
+
+	for _, event := range result.Items {
+		start, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+		end, _ := time.Parse(time.RFC3339, event.End.DateTime)
+
+		totalDuration += end.Sub(start).Seconds()
+	}
+
+	data.DurationToday = totalDuration
+
 	return event
 }
 

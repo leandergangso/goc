@@ -59,7 +59,7 @@ func StartTask(c *cli.Context) {
 
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, startTime)
-		event := insertToCalendar(data.CalendarId, newEvent)
+		event := insertToCalendar(data, newEvent)
 		updatePrevTaskAlias(data)
 		fmt.Println("Task added to calendar:", event.HtmlLink)
 	}
@@ -87,7 +87,7 @@ func EndTask(c *cli.Context) {
 	}
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data.CalendarId, newEvent)
+	event := insertToCalendar(data, newEvent)
 	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
 	writeToFile(data)
@@ -131,7 +131,7 @@ func InsertTask(c *cli.Context) {
 	data.CurrentTask.Start = startTime
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data.CalendarId, newEvent)
+	event := insertToCalendar(data, newEvent)
 
 	fmt.Println("Task addded to calendar:", event.HtmlLink)
 }
@@ -202,22 +202,32 @@ func ShowAlias(c *cli.Context) {
 func TaskStatus(c *cli.Context) {
 	data := readFile()
 
+	durationToday, _ := time.ParseDuration(fmt.Sprint(data.DurationToday, "s"))
+
 	if data.CurrentTask.Name == "" {
+		if c.Bool("oneline") {
+			fmt.Printf("No current task (%s)", durationToday.Round(time.Second))
+			os.Exit(0)
+		}
+
 		fmt.Println("No task exist at the moment...")
+		fmt.Println("Duration today", durationToday.Round(time.Second))
+
 		os.Exit(0)
 	}
 
 	start, err := time.Parse(time.RFC3339, data.CurrentTask.Start)
 
-	if (err != nil) {
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	duration := time.Since(start).Round(time.Second)
+	durationToday, _ = time.ParseDuration(fmt.Sprint(data.DurationToday+duration.Seconds(), "s"))
 
-	if (c.Bool("oneline")) {
-		fmt.Printf("%s (%v)", data.CurrentTask.Name, duration)
+	if c.Bool("oneline") {
+		fmt.Printf("%s (%v) (%s)", data.CurrentTask.Name, duration, durationToday.Round(time.Second))
 
 		os.Exit(0)
 	}
@@ -227,4 +237,5 @@ func TaskStatus(c *cli.Context) {
 	fmt.Println("Name:", data.CurrentTask.Name)
 	fmt.Println("Start:", t)
 	fmt.Println("Duration:", duration)
+	fmt.Println("Duration today", durationToday.Round(time.Second))
 }

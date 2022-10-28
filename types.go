@@ -4,6 +4,7 @@ type FileData struct {
 	CalendarId  string
 	CurrentTask DataTask
 	TaskAlias   map[string]string
+	DurationToday float64
 }
 
 type DataTask struct {
