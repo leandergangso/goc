@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,10 +9,13 @@ import (
 	"github.com/urfave/cli"
 )
 
+const version = "v1.2.1"
+
 var app = cli.NewApp()
 
 func main() {
 	info()
+	flags()
 	commands()
 
 	err := app.Run(os.Args)
@@ -23,6 +27,14 @@ func main() {
 func info() {
 	app.Name = "Google Calendar CLI"
 	app.Usage = "A simple CLI for tracking hours into Google Calendar"
+}
+
+func flags() {
+	app.Flags = []cli.Flag{
+		{
+			N
+		}
+	}
 }
 
 func commands() {
@@ -104,6 +116,18 @@ func commands() {
 			Aliases: []string{"st"},
 			Usage:   "Get current task status",
 			Action:  goc.TaskStatus,
+		},
+		{
+			Name:  "version",
+			Usage: "See current version",
+			Action: func(c *cli.Context) {
+				fmt.Println("goc version:", version)
+			},
+		},
+		{
+			Name:   "latast",
+			Usage:  "Update `goc` if new version exists",
+			Action: goc.Update,
 		},
 	}
 }

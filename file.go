@@ -6,10 +6,9 @@ import (
 	"os"
 )
 
-var dirname, err = os.UserConfigDir()
-
-var SHARED_PATH = dirname + "/goc_cli/"
-var FILE_NAME = "data.json"
+const CONFIG_PATH = ""
+const SHARED_PATH = CONFIG_PATH + "/goc_cli/"
+const FILE_NAME = "data.json"
 
 func readFile() *FileData {
 	path := SHARED_PATH + FILE_NAME
@@ -31,12 +30,9 @@ func readFile() *FileData {
 
 func writeToFile(data *FileData) {
 	path := SHARED_PATH + FILE_NAME
-
-	createDataFileIfNotExists(path)
-
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		log.Fatalf("Unable to open file: %v", err)
+		log.Fatalf("Unable to open or create file: %v", err)
 	}
 	defer f.Close()
 	err = json.NewEncoder(f).Encode(data)
@@ -49,11 +45,8 @@ func createDataFileIfNotExists(path string) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		data := []byte("{}")
 		err := os.WriteFile(path, data, 0644)
-
-		if (err != nil) {
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 }
-
-

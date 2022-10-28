@@ -2,13 +2,23 @@ package goc
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
 	"github.com/urfave/cli"
 )
+
+func setup() {
+	CONFIG_PATH, err := os.UserConfigDir()
+	if err != nil {
+		log.Fatalf("Unable to resolve config dir: %v", err)
+	}
+	fmt.Println("Using path:", CONFIG_PATH)
+}
 
 func GoogleSetup(c *cli.Context) {
 	client := GetClient()
@@ -208,4 +218,24 @@ func TaskStatus(c *cli.Context) {
 
 	t := formatTimeString(data.CurrentTask.Start)
 	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
+}
+
+func Update(c *cli.Context) {
+	url := "https://api.github.com/repos/leandergangso/goc/releases/latest"
+	res, err := http.Get(url)
+	if err != nil {
+		log.Fatalf("Unable to fetch latest release: %v", err)
+	}
+	defer res.Body.Close()
+
+	var jsonBody map[string]any
+	err = json.NewDecoder(res.Body).Decode(&jsonBody)
+	if err != nil {
+		log.Fatalf("Unable to read response: %v", err)
+	}
+	latestVersion := jsonBody["tag_name"]
+	// link := jsonBody["html_url"]
+	// body := jsonBody["body"]
+	// currentVersion =
+	fmt.Println(latestVersion)
 }

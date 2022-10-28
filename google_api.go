@@ -86,9 +86,9 @@ func writeCredentialsInstructionsAndExit() {
 	fmt.Println("  - Set application type to Desktop app and follow the steps")
 	fmt.Println("  - Choose download JSON after creating the credential")
 	fmt.Println("  - Rename the file you downloaded to `credentials.json`")
-	fmt.Println("  - Move this file into `"+ SHARED_PATH + "`")
+	fmt.Println("  - Move this file into `" + SHARED_PATH + "`")
 
-	fmt.Println("")
+	fmt.Println()
 	fmt.Println("- Run goc setup to continue")
 
 	os.Exit(0)
