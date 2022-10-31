@@ -283,8 +283,20 @@ func TaskStatus(c *cli.Context) error {
 		return nil
 	}
 
-	t := formatTimeString(data.CurrentTask.Start)
-	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
+	duration, err := getTimeSince(data.CurrentTask.Start)
+	if err != nil {
+		return fmt.Errorf("unable to get time durtaion: %v", err)
+	}
 
+	if c.Bool("oneline") {
+		fmt.Printf("%s (%v)", data.CurrentTask.Name, duration)
+		return nil
+	}
+
+	startTime := formatTimeString(data.CurrentTask.Start)
+
+	fmt.Println("Task status:\n------------")
+	fmt.Println("Name:", data.CurrentTask.Name)
+	fmt.Println("Start:", startTime)
 	return nil
 }

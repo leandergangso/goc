@@ -116,6 +116,12 @@ var commands = []*cli.Command{
 		Name:    "status",
 		Aliases: []string{"st"},
 		Usage:   "Get current task status",
-		Action:  goc.TaskStatus,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "oneline",
+				Usage: "List status in oneline format",
+			},
+		},
+		Action: goc.TaskStatus,
 	},
 }
