@@ -3,6 +3,7 @@ package goc
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -34,7 +35,7 @@ func getSharedPath() (string, error) {
 	return sharedPath, nil
 }
 
-func getPath() (string, error) {
+func getFilePath() (string, error) {
 	commonPath, err := getSharedPath()
 	if err != nil {
 		return "", err
@@ -44,56 +45,40 @@ func getPath() (string, error) {
 }
 
 func readFile() (*FileData, error) {
-	filepath, err := getPath()
+	filepath, err := getFilePath()
 	if err != nil {
 		return nil, fmt.Errorf("unable to get path: %v", err)
 	}
 
-	err = createDataFileIfNotExists(filepath)
+	f, err := os.OpenFile(filepath, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create file: %v", err)
-	}
-
-	f, err := os.Open(filepath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to open file: %v", err)
+		return nil, fmt.Errorf("unable to read/create file: %v", err)
 	}
 	defer f.Close()
 
 	data := &FileData{}
 	err = json.NewDecoder(f).Decode(data)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return nil, fmt.Errorf("unable to decode data from file: %v", err)
 	}
 	return data, nil
 }
 
 func writeToFile(data *FileData) error {
-	path, err := getPath()
+	filepath, err := getFilePath()
 	if err != nil {
 		return fmt.Errorf("unable to get path: %v", err)
 	}
 
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		return fmt.Errorf("unable to open/create file: %v", err)
+		return fmt.Errorf("unable to write/create file: %v", err)
 	}
 	defer f.Close()
 
 	err = json.NewEncoder(f).Encode(data)
 	if err != nil {
 		return fmt.Errorf("unable to encode data to file: %v", err)
-	}
-	return nil
-}
-
-func createDataFileIfNotExists(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		data := []byte("{}")
-		err := os.WriteFile(path, data, 0644)
-		if err != nil {
-			return fmt.Errorf("unable to write to file: %v", err)
-		}
 	}
 	return nil
 }
