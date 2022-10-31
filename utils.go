@@ -10,7 +10,7 @@ import (
 )
 
 // magic reference: Mon Jan 2 15:04:05 MST 2006
-var TIME_FORMAT = "2006-01-02 15:04 MST"
+const TIME_FORMAT = "2006-01-02 15:04 MST"
 
 func insertToCalendar(calId string, newEvent *calendar.Event) (*calendar.Event, error) {
 	client, err := GetClient()

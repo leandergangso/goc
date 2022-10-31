@@ -13,6 +13,9 @@ import (
 	"google.golang.org/api/option"
 )
 
+const TOKEN_FILE = "/token.json"
+const CREDENTIALS_FILE = "/credentials.json"
+
 func GetClient() (*calendar.Service, error) {
 	sharedPath, err := getSharedPath()
 	if err != nil {
@@ -51,7 +54,7 @@ func getToken(config *oauth2.Config) (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	tokFile := sharedPath + "/token.json"
+	tokFile := sharedPath + TOKEN_FILE
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -75,7 +78,7 @@ func getToken(config *oauth2.Config) (*oauth2.Token, error) {
 }
 
 func getCredentials(path string) []byte {
-	b, err := os.ReadFile(path + "/credentials.json")
+	b, err := os.ReadFile(path + CREDENTIALS_FILE)
 	if err != nil {
 		writeCredentialsInstructionsAndExit(path)
 	}

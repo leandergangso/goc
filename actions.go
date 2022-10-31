@@ -38,7 +38,7 @@ func GoogleSetup(c *cli.Context) error {
 	}
 
 	if calId == "" {
-		fmt.Printf("Skipped, currently using: %v", data.CalendarId)
+		fmt.Printf("Skipped, currently using: %v\n", data.CalendarId)
 		return nil
 	}
 
