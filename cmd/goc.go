@@ -118,16 +118,4 @@ var commands = []*cli.Command{
 		Usage:   "Get current task status",
 		Action:  goc.TaskStatus,
 	},
-	{
-		Name:  "update",
-		Usage: "Update 'goc' if new version exists",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "force",
-				Aliases: []string{"f"},
-				Usage:   "Force update, even on breaking changes",
-			},
-		},
-		Action: goc.Update,
-	},
 }

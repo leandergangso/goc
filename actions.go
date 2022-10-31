@@ -11,7 +11,11 @@ import (
 )
 
 func GoogleSetup(c *cli.Context) error {
-	client := GetClient()
+	client, err := GetClient()
+	if err != nil {
+		return err
+	}
+
 	calList, err := client.CalendarList.List().Do()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve calendar list: %v", err)
@@ -69,7 +73,11 @@ func StartTask(c *cli.Context) error {
 
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, startTime)
-		event := insertToCalendar(data.CalendarId, newEvent)
+		event, err := insertToCalendar(data.CalendarId, newEvent)
+		if err != nil {
+			return err
+		}
+
 		updatePrevTaskAlias(data)
 		fmt.Println("Task added to calendar:", event.HtmlLink)
 	}
@@ -104,7 +112,10 @@ func EndTask(c *cli.Context) error {
 	}
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data.CalendarId, newEvent)
+	event, err := insertToCalendar(data.CalendarId, newEvent)
+	if err != nil {
+		return err
+	}
 
 	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
@@ -168,7 +179,10 @@ func InsertTask(c *cli.Context) error {
 	data.CurrentTask.Start = startTime
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data.CalendarId, newEvent)
+	event, err := insertToCalendar(data.CalendarId, newEvent)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Task added to calendar:", event.HtmlLink)
 	return nil
@@ -272,38 +286,5 @@ func TaskStatus(c *cli.Context) error {
 	t := formatTimeString(data.CurrentTask.Start)
 	fmt.Println("Task status:\n------------\nNavn: " + data.CurrentTask.Name + "\nStart: " + t)
 
-	return nil
-}
-
-func Update(c *cli.Context) error {
-	data, err := getLatestRelease()
-	if err != nil {
-		return err
-	}
-
-	currentVersion := c.App.Version
-	// if currentVersion == data.Version {
-	// 	fmt.Println("Already using the latest version:", data.Version)
-	// 	return nil
-	// }
-
-	if !c.Bool("force") && isBreakingVersionUpdate(currentVersion, data.Version) {
-		fmt.Println("Next version has breaking changes, use '-f' to force update")
-		fmt.Println("See release notes here:", data.Link)
-		return nil
-	}
-
-	if len(data.Assets) == 0 {
-		fmt.Println("Asset missing from release, update aborted")
-		return nil
-	}
-
-	err = downloadExe(data.Assets[0].DownloadLink)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Updated from:", currentVersion, "to", data.Version)
-	fmt.Println("Release link:", data.Link)
 	return nil
 }

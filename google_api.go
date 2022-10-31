@@ -13,9 +13,17 @@ import (
 	"google.golang.org/api/option"
 )
 
-func GetClient() *calendar.Service {
-	config := getConfig()
-	tok := getToken(config)
+func GetClient() (*calendar.Service, error) {
+	sharedPath, err := getSharedPath()
+	if err != nil {
+		return nil, err
+	}
+
+	config := getConfig(sharedPath)
+	tok, err := getToken(config)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get token from file: %v", err)
+	}
 
 	client := config.Client(context.Background(), tok)
 	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
@@ -23,11 +31,11 @@ func GetClient() *calendar.Service {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
 	}
 
-	return srv
+	return srv, nil
 }
 
-func getConfig() *oauth2.Config {
-	b := getCredentials()
+func getConfig(path string) *oauth2.Config {
+	b := getCredentials(path)
 
 	// Need to delete token.json on a scope change
 	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope, calendar.CalendarEventsScope)
@@ -37,8 +45,13 @@ func getConfig() *oauth2.Config {
 	return config
 }
 
-func getToken(config *oauth2.Config) *oauth2.Token {
-	tokFile := SHARED_PATH + "token.json"
+func getToken(config *oauth2.Config) (*oauth2.Token, error) {
+	sharedPath, err := getSharedPath()
+	if err != nil {
+		return nil, err
+	}
+
+	tokFile := sharedPath + "/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -58,20 +71,20 @@ func getToken(config *oauth2.Config) *oauth2.Token {
 		saveToken(tokFile, ntok)
 	}
 
-	return tok
+	return tok, nil
 }
 
-func getCredentials() []byte {
-	b, err := os.ReadFile(SHARED_PATH + "credentials.json")
+func getCredentials(path string) []byte {
+	b, err := os.ReadFile(path + "/credentials.json")
 	if err != nil {
-		writeCredentialsInstructionsAndExit()
+		writeCredentialsInstructionsAndExit(path)
 	}
 	return b
 }
 
-func writeCredentialsInstructionsAndExit() {
-	if _, err := os.Stat(SHARED_PATH); os.IsNotExist(err) {
-		if err := os.Mkdir(SHARED_PATH, os.ModePerm); err != nil {
+func writeCredentialsInstructionsAndExit(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := os.Mkdir(path, os.ModePerm); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -86,7 +99,7 @@ func writeCredentialsInstructionsAndExit() {
 	fmt.Println("  - Set application type to Desktop app and follow the steps")
 	fmt.Println("  - Choose download JSON after creating the credential")
 	fmt.Println("  - Rename the file you downloaded to `credentials.json`")
-	fmt.Println("  - Move this file into `" + SHARED_PATH + "`")
+	fmt.Println("  - Move this file into `" + path + "`")
 
 	fmt.Println()
 	fmt.Println("- Run goc setup to continue")

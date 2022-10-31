@@ -12,13 +12,17 @@ import (
 // magic reference: Mon Jan 2 15:04:05 MST 2006
 var TIME_FORMAT = "2006-01-02 15:04 MST"
 
-func insertToCalendar(calId string, newEvent *calendar.Event) *calendar.Event {
-	client := GetClient()
+func insertToCalendar(calId string, newEvent *calendar.Event) (*calendar.Event, error) {
+	client, err := GetClient()
+	if err != nil {
+		return nil, err
+	}
+
 	event, err := client.Events.Insert(calId, newEvent).Do()
 	if err != nil {
 		log.Fatalf("Unable to add event to calendar: %v", err)
 	}
-	return event
+	return event, nil
 }
 
 func createEvent(data *FileData, endTime string) *calendar.Event {
@@ -41,7 +45,8 @@ func getTime() string {
 
 func stringToTime(s string) string {
 	now := time.Now()
-	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, "CEST")
+	timezone, _ := now.Zone()
+	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, timezone)
 	t, err := time.Parse(TIME_FORMAT, fs)
 	if err != nil {
 		log.Fatalf("Unable to parse time: %v", err)

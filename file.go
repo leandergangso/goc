@@ -6,16 +6,8 @@ import (
 	"os"
 )
 
-// func setup() {
-// 	if err != nil {
-// 		log.Fatalf("Unable to resolve config dir: %v", err)
-// 	}
-// 	fmt.Println("Using path:", CONFIG_PATH)
-// }
-
-const CONFIG_PATH = ""
-const SHARED_PATH = CONFIG_PATH + "/goc_cli/"
-const FILE_NAME = "data.json"
+const SHARED_PATH = "/goc_cli"
+const FILE_NAME = "/data.json"
 
 type FileData struct {
 	CalendarId  string
@@ -33,15 +25,36 @@ func (f *DataTask) Reset() {
 	f.Start = ""
 }
 
-func readFile() (*FileData, error) {
-	path := SHARED_PATH + FILE_NAME
+func getSharedPath() (string, error) {
+	configPath, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	sharedPath := configPath + SHARED_PATH
+	return sharedPath, nil
+}
 
-	err := createDataFileIfNotExists(path)
+func getPath() (string, error) {
+	commonPath, err := getSharedPath()
+	if err != nil {
+		return "", err
+	}
+	fullFilePath := commonPath + FILE_NAME
+	return fullFilePath, nil
+}
+
+func readFile() (*FileData, error) {
+	filepath, err := getPath()
+	if err != nil {
+		return nil, fmt.Errorf("unable to get path: %v", err)
+	}
+
+	err = createDataFileIfNotExists(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create file: %v", err)
 	}
 
-	f, err := os.Open(path)
+	f, err := os.Open(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open file: %v", err)
 	}
@@ -56,7 +69,11 @@ func readFile() (*FileData, error) {
 }
 
 func writeToFile(data *FileData) error {
-	path := SHARED_PATH + FILE_NAME
+	path, err := getPath()
+	if err != nil {
+		return fmt.Errorf("unable to get path: %v", err)
+	}
+
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("unable to open/create file: %v", err)
