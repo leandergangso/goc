@@ -298,5 +298,6 @@ func TaskStatus(c *cli.Context) error {
 	fmt.Println("Task status:\n------------")
 	fmt.Println("Name:", data.CurrentTask.Name)
 	fmt.Println("Start:", startTime)
+	fmt.Println("Duration:", duration)
 	return nil
 }
