@@ -3,7 +3,6 @@ package goc
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 )
 
 func GoogleSetup(c *cli.Context) error {
-	client, err := GetClient()
+	client, _, err := GetClient()
 	if err != nil {
 		return err
 	}
@@ -54,7 +53,8 @@ func GoogleSetup(c *cli.Context) error {
 
 func StartTask(c *cli.Context) error {
 	if c.NArg() < 1 {
-		return fmt.Errorf("missing required argument")
+		cli.ShowSubcommandHelp(c)
+		return nil
 	}
 
 	data, err := readFile()
@@ -131,7 +131,8 @@ func EndTask(c *cli.Context) error {
 
 func EditCurrentTask(c *cli.Context) error {
 	if c.NumFlags() == 0 {
-		log.Fatal("Missing at least one flag")
+		cli.ShowSubcommandHelp(c)
+		return nil
 	}
 
 	data, err := readFile()
@@ -163,7 +164,8 @@ func EditCurrentTask(c *cli.Context) error {
 
 func InsertTask(c *cli.Context) error {
 	if c.NArg() < 3 {
-		log.Fatal("Missing required arguments")
+		cli.ShowSubcommandHelp(c)
+		return nil
 	}
 
 	data, err := readFile()
@@ -190,7 +192,8 @@ func InsertTask(c *cli.Context) error {
 
 func AddTaskAlias(c *cli.Context) error {
 	if c.NArg() < 2 {
-		log.Fatal("Missing required arguments")
+		cli.ShowSubcommandHelp(c)
+		return nil
 	}
 
 	aliasName := c.Args().Get(0)
@@ -217,7 +220,8 @@ func AddTaskAlias(c *cli.Context) error {
 
 func DelTaskAlias(c *cli.Context) error {
 	if c.NArg() < 1 {
-		log.Fatal("Missing required argument")
+		cli.ShowSubcommandHelp(c)
+		return nil
 	}
 
 	aliasName := c.Args().Get(0)
@@ -289,7 +293,7 @@ func TaskStatus(c *cli.Context) error {
 	}
 
 	if c.Bool("oneline") {
-		fmt.Printf("%s (%v)", data.CurrentTask.Name, duration)
+		fmt.Printf("%s (%v)\n", data.CurrentTask.Name, duration)
 		return nil
 	}
 

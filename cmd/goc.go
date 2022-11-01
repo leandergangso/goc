@@ -70,8 +70,9 @@ var commands = []*cli.Command{
 		Action: goc.EndTask,
 	},
 	{
-		Name:  "edit",
-		Usage: "Edit the current task",
+		Name:    "update",
+		Aliases: []string{"u"},
+		Usage:   "Update the current task",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "name",

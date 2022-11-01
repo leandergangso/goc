@@ -13,15 +13,17 @@ import (
 const TIME_FORMAT = time.RFC3339
 
 func insertToCalendar(calId string, newEvent *calendar.Event) (*calendar.Event, error) {
-	client, err := GetClient()
+	client, source, err := GetClient()
 	if err != nil {
 		return nil, err
 	}
 
 	event, err := client.Events.Insert(calId, newEvent).Do()
 	if err != nil {
-		log.Fatalf("Unable to add event to calendar: %v", err)
+		return nil, fmt.Errorf("unable to add event to calendar: %v", err)
 	}
+
+	updateToken(source)
 	return event, nil
 }
 
@@ -56,9 +58,9 @@ func stringToTime(s string) string {
 	now := time.Now()
 	timezone, _ := now.Zone()
 	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, timezone)
-	t, err := time.Parse("2006-01-02 15:04 MST", fs)
+	t, err := time.Parse("2006-1-2 15:04 MST", fs)
 	if err != nil {
-		log.Fatalf("Unable to parse time: %v", err)
+		log.Fatalf("unable to parse time: %v", err)
 	}
 	return t.Format(TIME_FORMAT)
 }
