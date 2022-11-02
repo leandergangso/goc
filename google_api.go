@@ -96,7 +96,6 @@ func updateToken(source oauth2.TokenSource) error {
 	}
 
 	if tok.RefreshToken != sourceToken.RefreshToken || tok.AccessToken != sourceToken.AccessToken {
-		fmt.Println("update")
 		saveToken(tokFile, sourceToken)
 	}
 	return nil
