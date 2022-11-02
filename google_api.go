@@ -69,12 +69,6 @@ func getToken(config *oauth2.Config) (*oauth2.Token, error) {
 		os.Exit(0)
 	}
 
-	// source := config.TokenSource(context.Background(), tok)
-	// ntok, err := source.Token()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("unable to get token source: %v", err)
-	// }
-
 	return tok, nil
 }
 
