@@ -8,13 +8,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const version = "v1.2.1"
-
 func main() {
 	app := &cli.App{
 		Name:            "goc",
 		Usage:           "A simple CLI for tracking hours into Google Calendar",
-		Version:         version,
 		Suggest:         true,
 		HideHelpCommand: true,
 		Commands:        commands,
@@ -23,11 +20,6 @@ func main() {
 		Name:    "help",
 		Aliases: []string{"h"},
 		Usage:   "Show help",
-	}
-	cli.VersionFlag = &cli.BoolFlag{
-		Name:    "version",
-		Aliases: []string{"v"},
-		Usage:   "Print the version",
 	}
 
 	err := app.Run(os.Args)

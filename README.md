@@ -4,10 +4,10 @@ Simple CLI for tracking work hours into Google calendar.
 
 ## Setup (Linux)
 
-- Download the latest `goc` file from the **release** page or clone this repo and build it yourself
+- Clone this repo and build the executable with `go build cmd/goc.go`
 - Make sure `goc` is executable, if not run: `chmod +x goc`
 - Move the `goc` file into `/usr/local/bin` or any other folder that is in your `$PATH`
-- Run `goc setup` to configure the calendar.
+- Run `goc setup` to configure google app and calendar
 - Run `goc` to see help and usage, and `goc help COMMAND` to see command info
 
 ## Setup (Other)
@@ -28,38 +28,36 @@ See help:
 goc
 // show command help
 goc help start
-// show help for start command
-goc help start
 ```
 
 Basic usage:
 ```bash
 // start task at the current time
-goc start 'task name'
+goc s 'task name'
 // see status of current task
-goc status
+goc st
 // end current task at the current time
-goc end
+goc e
 ```
 
 Custom times (format: HH:MM):
 ```bash
 // start task at a different time
-goc start 'task name' -t 8:00
+goc s 'task name' -t 8:00
 // start new task that will end the previous task
-goc start 'new task' -t 10:00
+goc s 'new task' -t 10:00
 // end current task at a different time
-goc end -t 16:00
+goc e -t 16:00
 ```
 
 Alias usage:
 ```bash
 // list aliases
-goc list
+goc l
 // new alias
-goc alias 'alias name' 'task name'
+goc a 'alias name' 'task name'
 // use alias
-goc start 'alias name'
+goc s 'alias name'
 // remove alias
-goc remove 'alias name'
+goc r 'alias name'
 ```
