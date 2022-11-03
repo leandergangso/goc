@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
 
 const SHARED_PATH = "/goc_cli"
@@ -14,6 +15,30 @@ type FileData struct {
 	CalendarId  string
 	CurrentTask DataTask
 	TaskAlias   map[string]string
+
+	durationToday time.Duration
+	currentDate   curDate
+}
+
+func (f *FileData) GetDurationToday() (time.Duration, error) {
+	year, month, day := time.Now().Date()
+	date := f.currentDate
+	if date.year == year && date.month == month && date.day == day {
+		return f.durationToday, nil // updated on new events to cal
+	}
+
+	err := updateTotalDuration(f)
+	if err != nil {
+		return time.Duration(0), err
+	}
+
+	return f.durationToday, nil
+}
+
+type curDate struct {
+	year  int
+	month time.Month
+	day   int
 }
 
 type DataTask struct {

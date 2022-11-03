@@ -43,7 +43,7 @@ var commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "time",
 				Aliases: []string{"t"},
-				Usage:   "Set start time for task (HH:MM)",
+				Usage:   "Set start time for task (HHMM)",
 			},
 		},
 		Action: goc.StartTask,
@@ -56,7 +56,7 @@ var commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "time",
 				Aliases: []string{"t"},
-				Usage:   "Set end time for task (HH:MM)",
+				Usage:   "Set end time for task (HHMM)",
 			},
 		},
 		Action: goc.EndTask,
@@ -74,7 +74,7 @@ var commands = []*cli.Command{
 			&cli.StringFlag{
 				Name:    "time",
 				Aliases: []string{"t"},
-				Usage:   "Set new task time (HH:MM)",
+				Usage:   "Set new task time (HHMM)",
 			},
 		},
 		Action: goc.EditCurrentTask,
@@ -83,7 +83,7 @@ var commands = []*cli.Command{
 		Name:      "insert",
 		Aliases:   []string{"i"},
 		Usage:     "Insert task directly to calendar",
-		ArgsUsage: "'name' start(HH:MM) end(HH:MM)",
+		ArgsUsage: "'name' start(HHMM) end(HHMM)",
 		Action:    goc.InsertTask,
 	},
 	{

@@ -3,28 +3,62 @@ package goc
 import (
 	"fmt"
 	"log"
+	"math"
 	"strings"
 	"time"
 
 	"google.golang.org/api/calendar/v3"
 )
 
-// magic reference: Mon Jan 2 15:04:05 MST 2006
 const TIME_FORMAT = time.RFC3339
 
-func insertToCalendar(calId string, newEvent *calendar.Event) (*calendar.Event, error) {
+func insertToCalendar(data *FileData, newEvent *calendar.Event) (*calendar.Event, error) {
 	client, source, err := GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	event, err := client.Events.Insert(calId, newEvent).Do()
+	event, err := client.Events.Insert(data.CalendarId, newEvent).Do()
 	if err != nil {
 		return nil, fmt.Errorf("unable to add event to calendar: %v", err)
 	}
 
+	updateTotalDuration(data)
 	updateToken(source)
 	return event, nil
+}
+
+func updateTotalDuration(data *FileData) error {
+	client, source, err := GetClient()
+	if err != nil {
+		return err
+	}
+
+	listCall := client.Events.List(data.CalendarId)
+
+	year, month, day := time.Now().Date()
+	minTime := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
+	listCall.TimeMin(minTime.Format(TIME_FORMAT))
+	listCall.TimeMax(getTime())
+
+	eventList, err := listCall.Do()
+	if err != nil {
+		return err
+	}
+
+	totalDuration := 0.0
+
+	for _, evt := range eventList.Items {
+		start, _ := time.Parse(TIME_FORMAT, evt.Start.DateTime)
+		end, _ := time.Parse(TIME_FORMAT, evt.End.DateTime)
+		totalDuration += end.Sub(start).Seconds()
+	}
+
+	data.durationToday = time.Duration(math.Round(totalDuration)) * time.Second
+	data.currentDate = curDate{year, month, day}
+
+	updateToken(source)
+	return nil
 }
 
 func createEvent(data *FileData, endTime string) *calendar.Event {
@@ -45,20 +79,20 @@ func getTime() string {
 	return time.Now().Format(TIME_FORMAT)
 }
 
-func getTimeSince(start string) (string, error) {
+func getTimeSince(start string) (time.Duration, error) {
 	startTime, err := time.Parse(TIME_FORMAT, start)
 	if err != nil {
-		return "", err
+		return time.Duration(0), err
 	}
 	duration := time.Since(startTime).Round(time.Second)
-	return duration.String(), nil
+	return duration, nil
 }
 
 func stringToTime(s string) string {
 	now := time.Now()
 	timezone, _ := now.Zone()
 	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, timezone)
-	t, err := time.Parse("2006-1-2 15:04 MST", fs)
+	t, err := time.Parse("2006-1-2 1504 MST", fs)
 	if err != nil {
 		log.Fatalf("unable to parse time: %v", err)
 	}

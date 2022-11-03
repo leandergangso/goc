@@ -73,7 +73,7 @@ func StartTask(c *cli.Context) error {
 
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, startTime)
-		event, err := insertToCalendar(data.CalendarId, newEvent)
+		event, err := insertToCalendar(data, newEvent)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func EndTask(c *cli.Context) error {
 	}
 
 	newEvent := createEvent(data, endTime)
-	event, err := insertToCalendar(data.CalendarId, newEvent)
+	event, err := insertToCalendar(data, newEvent)
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func InsertTask(c *cli.Context) error {
 	data.CurrentTask.Start = startTime
 
 	newEvent := createEvent(data, endTime)
-	event, err := insertToCalendar(data.CalendarId, newEvent)
+	event, err := insertToCalendar(data, newEvent)
 	if err != nil {
 		return err
 	}
@@ -282,18 +282,24 @@ func TaskStatus(c *cli.Context) error {
 		return err
 	}
 
-	if data.CurrentTask.Name == "" {
-		fmt.Println("No task exist at the moment...")
-		return nil
-	}
-
-	duration, err := getTimeSince(data.CurrentTask.Start)
+	taskDuration, err := getTimeSince(data.CurrentTask.Start)
 	if err != nil {
 		return fmt.Errorf("unable to get time durtaion: %v", err)
 	}
 
+	durationToday, err := data.GetDurationToday()
+	if err != nil {
+		return fmt.Errorf("unable to get duration today: %v", err)
+	}
+
+	if data.CurrentTask.Name == "" {
+		fmt.Println("No task exist at the moment...")
+		fmt.Println("Duration today:", durationToday)
+		return nil
+	}
+
 	if c.Bool("oneline") {
-		fmt.Printf("%s (%v)\n", data.CurrentTask.Name, duration)
+		fmt.Printf("%s (%v) (%v)\n", data.CurrentTask.Name, taskDuration, durationToday)
 		return nil
 	}
 
@@ -302,6 +308,7 @@ func TaskStatus(c *cli.Context) error {
 	fmt.Println("Task status:\n------------")
 	fmt.Println("Name:", data.CurrentTask.Name)
 	fmt.Println("Start:", startTime)
-	fmt.Println("Duration:", duration)
+	fmt.Println("Duration:", taskDuration)
+	fmt.Println("Duration today:", durationToday+taskDuration)
 	return nil
 }
