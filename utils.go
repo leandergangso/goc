@@ -72,7 +72,7 @@ func getTime() string {
 func getTimeSince(start string) time.Duration {
 	startTime, err := time.Parse(TIME_FORMAT, start)
 	if err != nil {
-		log.Fatalf("unable to parse time", err)
+		log.Fatalf("unable to parse time: %v", err)
 	}
 	duration := time.Since(startTime).Round(time.Second)
 	return duration
