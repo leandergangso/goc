@@ -12,38 +12,31 @@ import (
 
 const TIME_FORMAT = time.RFC3339
 
-func insertToCalendar(data *FileData, newEvent *calendar.Event) (*calendar.Event, error) {
-	client, source, err := GetClient()
-	if err != nil {
-		return nil, err
-	}
+func insertToCalendar(data *FileData, newEvent *calendar.Event) *calendar.Event {
+	client, source := GetClient()
 
 	event, err := client.Events.Insert(data.CalendarId, newEvent).Do()
 	if err != nil {
-		return nil, fmt.Errorf("unable to add event to calendar: %v", err)
+		log.Fatalf("unable to add event to calendar: %v", err)
 	}
 
-	updateTotalDuration(data)
+	updateTotalDuration(client, data)
 	updateToken(source)
-	return event, nil
+	return event
 }
 
-func updateTotalDuration(data *FileData) error {
-	client, source, err := GetClient()
-	if err != nil {
-		return err
-	}
-
+func updateTotalDuration(client *calendar.Service, data *FileData) {
 	listCall := client.Events.List(data.CalendarId)
 
 	year, month, day := time.Now().Date()
 	minTime := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
+
 	listCall.TimeMin(minTime.Format(TIME_FORMAT))
 	listCall.TimeMax(getTime())
 
 	eventList, err := listCall.Do()
 	if err != nil {
-		return err
+		log.Fatalf("unable to get calendar events: %v", err)
 	}
 
 	totalDuration := 0.0
@@ -54,11 +47,8 @@ func updateTotalDuration(data *FileData) error {
 		totalDuration += end.Sub(start).Seconds()
 	}
 
-	data.durationToday = time.Duration(math.Round(totalDuration)) * time.Second
-	data.currentDate = curDate{year, month, day}
-
-	updateToken(source)
-	return nil
+	data.DurationToday = time.Duration(math.Round(totalDuration)) * time.Second
+	data.CurrentDate = CurDate{year, month, day}
 }
 
 func createEvent(data *FileData, endTime string) *calendar.Event {
@@ -79,13 +69,13 @@ func getTime() string {
 	return time.Now().Format(TIME_FORMAT)
 }
 
-func getTimeSince(start string) (time.Duration, error) {
+func getTimeSince(start string) time.Duration {
 	startTime, err := time.Parse(TIME_FORMAT, start)
 	if err != nil {
-		return time.Duration(0), err
+		log.Fatalf("unable to parse time", err)
 	}
 	duration := time.Since(startTime).Round(time.Second)
-	return duration, nil
+	return duration
 }
 
 func stringToTime(s string) string {
@@ -113,7 +103,6 @@ func checkAndUseAlias(name string, data *FileData) string {
 }
 
 func updatePrevTaskAlias(data *FileData) {
-
 	if _, ok := data.TaskAlias["prev2"]; ok {
 		data.TaskAlias["prev3"] = data.TaskAlias["prev2"]
 	}

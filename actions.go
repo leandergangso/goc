@@ -10,11 +10,7 @@ import (
 )
 
 func GoogleSetup(c *cli.Context) error {
-	client, _, err := GetClient()
-	if err != nil {
-		return err
-	}
-
+	client, _ := GetClient()
 	calList, err := client.CalendarList.List().Do()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve calendar list: %v", err)
@@ -31,10 +27,7 @@ func GoogleSetup(c *cli.Context) error {
 	calId, _ := reader.ReadString('\n')
 	calId = strings.Replace(calId, "\n", "", -1)
 
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
+	data := readFile()
 
 	if calId == "" {
 		fmt.Printf("Skipped, currently using: %v\n", data.CalendarId)
@@ -42,10 +35,7 @@ func GoogleSetup(c *cli.Context) error {
 	}
 
 	data.CalendarId = calId
-	err = writeToFile(data)
-	if err != nil {
-		return err
-	}
+	writeToFile(data)
 
 	fmt.Println("Calendar ID added, you are ready to start tracking!")
 	return nil
@@ -57,12 +47,9 @@ func StartTask(c *cli.Context) error {
 		return nil
 	}
 
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	name := checkAndUseAlias(c.Args().Get(0), data)
+	desc := c.Args().Get(1)
 
 	startTime := c.String("time")
 	if startTime == "" {
@@ -73,34 +60,29 @@ func StartTask(c *cli.Context) error {
 
 	if data.CurrentTask.Name != "" {
 		newEvent := createEvent(data, startTime)
-		event, err := insertToCalendar(data, newEvent)
-		if err != nil {
-			return err
-		}
+		event := insertToCalendar(data, newEvent)
 
 		updatePrevTaskAlias(data)
 		fmt.Println("Task added to calendar:", event.HtmlLink)
 	}
 
-	data.CurrentTask.Name = name
-	data.CurrentTask.Start = startTime
-	err = writeToFile(data)
-	if err != nil {
-		return err
+	taskName := name
+	if desc != "" {
+		taskName += " " + desc
 	}
+
+	data.CurrentTask.Name = taskName
+	data.CurrentTask.Start = startTime
+	writeToFile(data)
 
 	fmt.Println("New task started: " + name)
 	return nil
 }
 
 func EndTask(c *cli.Context) error {
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	if data.CurrentTask.Name == "" {
-		fmt.Println("No task exist at the moment...")
+		fmt.Println("No current task to end")
 		return nil
 	}
 
@@ -112,18 +94,11 @@ func EndTask(c *cli.Context) error {
 	}
 
 	newEvent := createEvent(data, endTime)
-	event, err := insertToCalendar(data, newEvent)
-	if err != nil {
-		return err
-	}
+	event := insertToCalendar(data, newEvent)
 
 	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
-
-	err = writeToFile(data)
-	if err != nil {
-		return err
-	}
+	writeToFile(data)
 
 	fmt.Println("Task added to calendar:", event.HtmlLink)
 	return nil
@@ -135,30 +110,21 @@ func EditCurrentTask(c *cli.Context) error {
 		return nil
 	}
 
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	name := checkAndUseAlias(c.String("name"), data)
 	start := c.String("time")
 
 	if name != "" {
 		data.CurrentTask.Name = name
-		fmt.Println("New task name set: " + name)
+		fmt.Println("Task name set: " + name)
 	}
-
 	if start != "" {
 		start = stringToTime(start)
 		data.CurrentTask.Start = start
-		fmt.Println("New start time set: " + formatTimeString(start))
+		fmt.Println("Start time set: " + formatTimeString(start))
 	}
 
-	err = writeToFile(data)
-	if err != nil {
-		return err
-	}
-
+	writeToFile(data)
 	return nil
 }
 
@@ -168,11 +134,7 @@ func InsertTask(c *cli.Context) error {
 		return nil
 	}
 
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	name := checkAndUseAlias(c.Args().Get(0), data)
 	startTime := stringToTime(c.Args().Get(1))
 	endTime := stringToTime(c.Args().Get(2))
@@ -181,11 +143,10 @@ func InsertTask(c *cli.Context) error {
 	data.CurrentTask.Start = startTime
 
 	newEvent := createEvent(data, endTime)
-	event, err := insertToCalendar(data, newEvent)
-	if err != nil {
-		return err
-	}
+	event := insertToCalendar(data, newEvent)
 
+	data.CurrentTask.Reset()
+	writeToFile(data)
 	fmt.Println("Task added to calendar:", event.HtmlLink)
 	return nil
 }
@@ -199,21 +160,13 @@ func AddTaskAlias(c *cli.Context) error {
 	aliasName := c.Args().Get(0)
 	taskName := c.Args().Get(1)
 
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	if data.TaskAlias == nil {
 		data.TaskAlias = make(map[string]string)
 	}
 
 	data.TaskAlias[aliasName] = taskName
-	err = writeToFile(data)
-	if err != nil {
-		return err
-	}
-
+	writeToFile(data)
 	fmt.Println("Alias added:", aliasName+": "+taskName)
 	return nil
 }
@@ -225,10 +178,7 @@ func DelTaskAlias(c *cli.Context) error {
 	}
 
 	aliasName := c.Args().Get(0)
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
+	data := readFile()
 
 	if data.TaskAlias[aliasName] == "" {
 		fmt.Println("Alias does not exist")
@@ -236,23 +186,15 @@ func DelTaskAlias(c *cli.Context) error {
 	}
 
 	delete(data.TaskAlias, aliasName)
-	err = writeToFile(data)
-	if err != nil {
-		return err
-	}
-
+	writeToFile(data)
 	fmt.Println("Alias deleted:", aliasName)
 	return nil
 }
 
 func ShowAlias(c *cli.Context) error {
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
-
+	data := readFile()
 	if len(data.TaskAlias) == 0 {
-		fmt.Println("No alias exist at the moment...")
+		fmt.Println("No alias exists")
 		return nil
 	}
 
@@ -272,34 +214,37 @@ func ShowAlias(c *cli.Context) error {
 	fmt.Println("prev" + ": " + data.TaskAlias["prev"])
 	fmt.Println("prev2" + ": " + data.TaskAlias["prev2"])
 	fmt.Println("prev3" + ": " + data.TaskAlias["prev3"])
-
 	return nil
 }
 
 func TaskStatus(c *cli.Context) error {
-	data, err := readFile()
-	if err != nil {
-		return err
-	}
+	data := readFile()
 
-	taskDuration, err := getTimeSince(data.CurrentTask.Start)
-	if err != nil {
-		return fmt.Errorf("unable to get time durtaion: %v", err)
-	}
-
-	durationToday, err := data.GetDurationToday()
-	if err != nil {
-		return fmt.Errorf("unable to get duration today: %v", err)
-	}
-
-	if data.CurrentTask.Name == "" {
-		fmt.Println("No task exist at the moment...")
-		fmt.Println("Duration today:", durationToday)
+	if c.Bool("toggle") {
+		data.StatusOneline = !data.StatusOneline
+		writeToFile(data)
+		fmt.Printf("Oneline set to: %v\n", data.StatusOneline)
 		return nil
 	}
 
-	if c.Bool("oneline") {
-		fmt.Printf("%s (%v) (%v)\n", data.CurrentTask.Name, taskDuration, durationToday)
+	durationToday := data.GetDurationToday(c.Bool("update"))
+
+	if data.CurrentTask.Name == "" {
+		if data.StatusOneline || c.Bool("oneline") {
+			fmt.Printf("No current task (%v)\n", durationToday)
+		} else {
+			fmt.Println("No current task")
+			fmt.Println("Duration today:", durationToday)
+		}
+		return nil
+	}
+
+	taskDuration := getTimeSince(data.CurrentTask.Start)
+
+	totalDuration := taskDuration + durationToday
+
+	if data.StatusOneline || c.Bool("oneline") {
+		fmt.Printf("%s (%v) (%v)\n", data.CurrentTask.Name, taskDuration, totalDuration)
 		return nil
 	}
 
@@ -309,6 +254,6 @@ func TaskStatus(c *cli.Context) error {
 	fmt.Println("Name:", data.CurrentTask.Name)
 	fmt.Println("Start:", startTime)
 	fmt.Println("Duration:", taskDuration)
-	fmt.Println("Duration today:", durationToday+taskDuration)
+	fmt.Println("Duration today:", totalDuration)
 	return nil
 }

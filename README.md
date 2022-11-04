@@ -24,40 +24,40 @@ This includes, but may not be limited to the following:
 
 See help:
 ```bash
-// show help
+# show help
 goc
-// show command help
-goc help start
+# show command help
+goc s -h
 ```
 
 Basic usage:
 ```bash
-// start task at the current time
+# start task at the current time
 goc s 'task name'
-// see status of current task
+# see status of current task
 goc st
-// end current task at the current time
+# end current task at the current time
 goc e
 ```
 
-Custom times (format: HH:MM):
+Custom times (format: HHMM):
 ```bash
-// start task at a different time
-goc s 'task name' -t 8:00
-// start new task that will end the previous task
-goc s 'new task' -t 10:00
-// end current task at a different time
-goc e -t 16:00
+# start task at a different time
+goc s -t 0800 'task name'
+# start new task that will end the previous task
+goc s -t 1000 'new task'
+# end current task at a different time
+goc e -t 1600
 ```
 
 Alias usage:
 ```bash
-// list aliases
+# list aliases
 goc l
-// new alias
+# new alias
 goc a 'alias name' 'task name'
-// use alias
-goc s 'alias name'
-// remove alias
+# use alias
+goc s 'alias name' 'optional description'
+# remove alias
 goc r 'alias name'
 ```

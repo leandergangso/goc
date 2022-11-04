@@ -16,83 +16,63 @@ import (
 const TOKEN_FILE = "/token.json"
 const CREDENTIALS_FILE = "/credentials.json"
 
-func GetClient() (*calendar.Service, oauth2.TokenSource, error) {
-	sharedPath, err := getSharedPath()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	config := getConfig(sharedPath)
-	tok, err := getToken(config)
-	if err != nil {
-		return nil, nil, err
-	}
+func GetClient() (*calendar.Service, oauth2.TokenSource) {
+	config := getConfig()
+	tok := getToken(config)
 
 	ctx := context.Background()
 	source := config.TokenSource(ctx, tok)
 	client := oauth2.NewClient(ctx, source)
+
 	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to retrieve client: %v", err)
+		log.Fatalf("unable to retrieve client: %v", err)
 	}
-
-	return srv, source, nil
+	return srv, source
 }
 
-func getConfig(path string) *oauth2.Config {
+func getConfig() *oauth2.Config {
+	path := getSharedPath()
 	b := getCredentials(path)
 
 	// Need to delete token.json on a scope change
 	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope, calendar.CalendarEventsScope)
 	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
+		log.Fatalf("unable to parse client secret file to config: %v", err)
 	}
 	return config
 }
 
-func getToken(config *oauth2.Config) (*oauth2.Token, error) {
-	sharedPath, err := getSharedPath()
-	if err != nil {
-		return nil, err
-	}
-
-	tokFile := sharedPath + TOKEN_FILE
-	tok, err := tokenFromFile(tokFile)
-	if err != nil {
-		tok, err = getTokenFromWeb(config)
-		if err != nil {
-			return nil, err
-		}
+func getToken(config *oauth2.Config) *oauth2.Token {
+	path := getSharedPath()
+	tokFile := path + TOKEN_FILE
+	tok := getTokenFromFile(tokFile)
+	if tok == nil {
+		tok = getTokenFromWeb(config)
 		saveToken(tokFile, tok)
 
 		fmt.Println("Run setup again to select calendar")
 		os.Exit(0)
 	}
-
-	return tok, nil
+	return tok
 }
 
-func updateToken(source oauth2.TokenSource) error {
-	sharedPath, err := getSharedPath()
-	if err != nil {
-		return err
-	}
-
-	tokFile := sharedPath + TOKEN_FILE
-	tok, err := tokenFromFile(tokFile)
-	if err != nil {
-		return err
+func updateToken(source oauth2.TokenSource) {
+	path := getSharedPath()
+	tokFile := path + TOKEN_FILE
+	tok := getTokenFromFile(tokFile)
+	if tok == nil {
+		log.Printf("unable to read token from file")
 	}
 
 	sourceToken, err := source.Token()
 	if err != nil {
-		return err
+		log.Printf("unable to get token from source: %v", err)
 	}
 
 	if tok.RefreshToken != sourceToken.RefreshToken || tok.AccessToken != sourceToken.AccessToken {
 		saveToken(tokFile, sourceToken)
 	}
-	return nil
 }
 
 func getCredentials(path string) []byte {
@@ -128,31 +108,35 @@ func writeCredentialsInstructionsAndExit(path string) {
 	os.Exit(0)
 }
 
-func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
+func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Go to the link below and follow the steps.\n\n%v\n\nPaste the 'code' value from the localhost-URL here: ", authURL)
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		return nil, fmt.Errorf("unable to read authorization code: %v", err)
+		log.Fatalf("unable to scan input: %v", err)
 	}
 
 	tok, err := config.Exchange(context.Background(), authCode)
 	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve token from web: %v", err)
+		log.Fatalf("unable to retrieve token from web: %v", err)
 	}
-	return tok, nil
+	return tok
 }
 
-func tokenFromFile(file string) (*oauth2.Token, error) {
+func getTokenFromFile(file string) *oauth2.Token {
 	f, err := os.Open(file)
 	if err != nil {
-		return nil, err
+		log.Fatalf("unable to read from file: %v, with error: %v", file, err)
 	}
 	defer f.Close()
+
 	tok := &oauth2.Token{}
 	err = json.NewDecoder(f).Decode(tok)
-	return tok, err
+	if err != nil {
+		return nil
+	}
+	return tok
 }
 
 func saveToken(path string, token *oauth2.Token) {
@@ -161,5 +145,9 @@ func saveToken(path string, token *oauth2.Token) {
 		log.Fatalf("unable to save oauth tokens: %v", err)
 	}
 	defer f.Close()
-	json.NewEncoder(f).Encode(token)
+
+	err = json.NewEncoder(f).Encode(token)
+	if err != nil {
+		log.Fatalf("unable to encode token: %v", err)
+	}
 }

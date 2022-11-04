@@ -8,6 +8,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+func init() {
+	log.SetFlags(log.Lshortfile)
+}
+
 func main() {
 	app := &cli.App{
 		Name:            "goc",
@@ -38,7 +42,7 @@ var commands = []*cli.Command{
 		Name:      "start",
 		Aliases:   []string{"s"},
 		Usage:     "Start tracking new task",
-		ArgsUsage: "'name'",
+		ArgsUsage: "['name' | alias 'description']",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "time",
@@ -111,8 +115,16 @@ var commands = []*cli.Command{
 		Usage:   "Get current task status",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
+				Name:  "update",
+				Usage: "Get the latest duration info",
+			},
+			&cli.BoolFlag{
 				Name:  "oneline",
 				Usage: "List status in oneline format",
+			},
+			&cli.BoolFlag{
+				Name:  "toggle",
+				Usage: "Toggle oneline by default",
 			},
 		},
 		Action: goc.TaskStatus,
