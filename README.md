@@ -10,17 +10,7 @@ Simple CLI for tracking work hours into Google calendar.
 - Run `goc setup` to configure google app and calendar
 - Run `goc` to see help and usage, and `goc help COMMAND` to see command info
 
-## Setup (Other)
-
-If you want to use this on Mac and Windows, you need to make some changes.
-This includes, but may not be limited to the following:
-
-- You need to build the executable on your own, the one in the **release** page will not work
-  - Need `go` installed on your system
-  - Run `go build cmd/goc.go` to build the executable
-- The `$HOME` environment variable is used, if your system don't support this, you can hardcode a path instead of $HOME
-
-## Usage examples
+## Usage examples (may differ)
 
 See help:
 ```bash
