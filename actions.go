@@ -146,8 +146,11 @@ func InsertTask(c *cli.Context) error {
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data, newEvent)
 
-	data.CurrentTask.Reset()
+	client, _ := GetClient()
+	data = readFile()
+	updateTotalDuration(client, data)
 	writeToFile(data)
+
 	fmt.Println("Task added to calendar:", event.HtmlLink)
 	return nil
 }
