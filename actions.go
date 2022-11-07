@@ -247,7 +247,7 @@ func TaskStatus(c *cli.Context) error {
 			start, _ := time.Parse(TIME_FORMAT, evt.Start.DateTime)
 			end, _ := time.Parse(TIME_FORMAT, evt.End.DateTime)
 			duration := end.Sub(start)
-			fmt.Printf("- %v (%v|%v) (%v)\n", evt.Summary, start.Format(customFormat), end.Format(customFormat), duration)
+			fmt.Printf("- %v (%v-%v) (%v)\n", evt.Summary, start.Format(customFormat), end.Format(customFormat), duration)
 		}
 		return nil
 	}
