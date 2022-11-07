@@ -26,6 +26,23 @@ func insertToCalendar(data *FileData, newEvent *calendar.Event) *calendar.Event 
 }
 
 func updateTotalDuration(client *calendar.Service, data *FileData) {
+	eventList := getTodaysCalendarEvents(client, data)
+
+	totalDuration := 0.0
+
+	for _, evt := range eventList.Items {
+		start, _ := time.Parse(TIME_FORMAT, evt.Start.DateTime)
+		end, _ := time.Parse(TIME_FORMAT, evt.End.DateTime)
+		totalDuration += end.Sub(start).Seconds()
+	}
+
+	year, month, day := time.Now().Date()
+
+	data.DurationToday = time.Duration(math.Round(totalDuration)) * time.Second
+	data.CurrentDate = CurDate{year, month, day}
+}
+
+func getTodaysCalendarEvents(client *calendar.Service, data *FileData) *calendar.Events {
 	listCall := client.Events.List(data.CalendarId)
 
 	year, month, day := time.Now().Date()
@@ -39,16 +56,7 @@ func updateTotalDuration(client *calendar.Service, data *FileData) {
 		log.Fatalf("unable to get calendar events: %v", err)
 	}
 
-	totalDuration := 0.0
-
-	for _, evt := range eventList.Items {
-		start, _ := time.Parse(TIME_FORMAT, evt.Start.DateTime)
-		end, _ := time.Parse(TIME_FORMAT, evt.End.DateTime)
-		totalDuration += end.Sub(start).Seconds()
-	}
-
-	data.DurationToday = time.Duration(math.Round(totalDuration)) * time.Second
-	data.CurrentDate = CurDate{year, month, day}
+	return eventList
 }
 
 func createEvent(data *FileData, endTime string) *calendar.Event {

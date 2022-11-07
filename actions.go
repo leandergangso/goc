@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
@@ -224,6 +225,27 @@ func TaskStatus(c *cli.Context) error {
 		data.StatusOneline = !data.StatusOneline
 		writeToFile(data)
 		fmt.Printf("Oneline set to: %v\n", data.StatusOneline)
+		return nil
+	}
+
+	if c.Bool("list") {
+		client, _ := GetClient()
+		eventList := getTodaysCalendarEvents(client, data)
+
+		if len(eventList.Items) == 0 {
+			fmt.Println("No task for today")
+			return nil
+		}
+
+		customFormat := "15:04"
+
+		fmt.Println("Todays tasks:")
+		for _, evt := range eventList.Items {
+			start, _ := time.Parse(TIME_FORMAT, evt.Start.DateTime)
+			end, _ := time.Parse(TIME_FORMAT, evt.End.DateTime)
+			duration := end.Sub(start)
+			fmt.Printf("- %v: %v %v (%v)\n", evt.Summary, start.Format(customFormat), end.Format(customFormat), duration)
+		}
 		return nil
 	}
 

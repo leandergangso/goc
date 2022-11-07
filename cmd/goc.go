@@ -115,6 +115,10 @@ var commands = []*cli.Command{
 		Usage:   "Get current task status",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
+				Name:  "list",
+				Usage: "Get list of tasks today",
+			},
+			&cli.BoolFlag{
 				Name:  "update",
 				Usage: "Get the latest duration info",
 			},
