@@ -266,7 +266,11 @@ func TaskStatus(c *cli.Context) error {
 	totalDuration := taskDuration + durationToday
 
 	if data.StatusOneline || c.Bool("oneline") {
-		fmt.Printf("%s (%v) (%v)\n", data.CurrentTask.Name, taskDuration, totalDuration)
+		if taskDuration == totalDuration {
+			fmt.Printf("%s (%v)\n", data.CurrentTask.Name, taskDuration)
+		} else {
+			fmt.Printf("%s (%v) (%v)\n", data.CurrentTask.Name, taskDuration, totalDuration)
+		}
 		return nil
 	}
 
