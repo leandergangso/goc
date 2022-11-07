@@ -115,20 +115,24 @@ var commands = []*cli.Command{
 		Usage:   "Get current task status",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  "list",
-				Usage: "Get list of tasks today",
+				Name:    "list",
+				Aliases: []string{"l"},
+				Usage:   "Get list of tasks today",
 			},
 			&cli.BoolFlag{
-				Name:  "update",
-				Usage: "Get the latest duration info",
+				Name:    "update",
+				Aliases: []string{"u"},
+				Usage:   "Get the latest duration info",
 			},
 			&cli.BoolFlag{
-				Name:  "oneline",
-				Usage: "List status in oneline format",
+				Name:    "oneline",
+				Aliases: []string{"o"},
+				Usage:   "List status in oneline format",
 			},
 			&cli.BoolFlag{
-				Name:  "toggle",
-				Usage: "Toggle oneline by default",
+				Name:    "toggle",
+				Aliases: []string{"t"},
+				Usage:   "Toggle oneline by default",
 			},
 		},
 		Action: goc.TaskStatus,
