@@ -18,6 +18,8 @@ type FileData struct {
 	DurationToday time.Duration
 	CurrentDate   CurDate
 	StatusOneline bool
+
+	UpdateToken TokenStatus
 }
 
 func (f *FileData) GetDurationToday(force bool) time.Duration {
@@ -28,10 +30,16 @@ func (f *FileData) GetDurationToday(force bool) time.Duration {
 			return f.DurationToday // updated on new events to cal
 		}
 	}
-	client, _ := GetClient()
+	client, source := GetClient()
 	updateTotalDuration(client, f)
+	updateToken(source)
 	writeToFile(f)
 	return f.DurationToday
+}
+
+type TokenStatus struct {
+	DayNumber int
+	Done      bool
 }
 
 type CurDate struct {

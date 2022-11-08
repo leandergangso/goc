@@ -146,9 +146,10 @@ func InsertTask(c *cli.Context) error {
 	newEvent := createEvent(data, endTime)
 	event := insertToCalendar(data, newEvent)
 
-	client, _ := GetClient()
+	client, source := GetClient()
 	data = readFile()
 	updateTotalDuration(client, data)
+	updateToken(source)
 	writeToFile(data)
 
 	fmt.Println("Task added to calendar:", event.HtmlLink)
@@ -232,8 +233,9 @@ func TaskStatus(c *cli.Context) error {
 	}
 
 	if c.Bool("list") {
-		client, _ := GetClient()
+		client, source := GetClient()
 		eventList := getTodaysCalendarEvents(client, data)
+		updateToken(source)
 
 		if len(eventList.Items) == 0 {
 			fmt.Println("No task for today")

@@ -69,10 +69,11 @@ func updateToken(source oauth2.TokenSource) {
 	if err != nil {
 		log.Printf("unable to get token from source: %v", err)
 	}
-
-	if tok.RefreshToken != sourceToken.RefreshToken || tok.AccessToken != sourceToken.AccessToken {
-		saveToken(tokFile, sourceToken)
+	if sourceToken == nil {
+		log.Println("source token is nil")
 	}
+
+	saveToken(tokFile, sourceToken)
 }
 
 func getCredentials(path string) []byte {
@@ -127,7 +128,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 func getTokenFromFile(file string) *oauth2.Token {
 	f, err := os.Open(file)
 	if err != nil {
-		log.Fatalf("unable to read from file: %v, with error: %v", file, err)
+		return nil
 	}
 	defer f.Close()
 
