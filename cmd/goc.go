@@ -66,6 +66,12 @@ var commands = []*cli.Command{
 		Action: goc.EndTask,
 	},
 	{
+		Name:    "clear",
+		Aliases: []string{"c"},
+		Usage:   "Clear the current task",
+		Action:  goc.ClearCurrentTask,
+	},
+	{
 		Name:    "update",
 		Aliases: []string{"u"},
 		Usage:   "Update the current task",

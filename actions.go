@@ -54,17 +54,9 @@ func StartTask(c *cli.Context) error {
 
 	startTime := c.String("time")
 	if startTime == "" {
-		startTime = getTime()
+		startTime = getTime(false)
 	} else {
 		startTime = stringToTime(startTime)
-	}
-
-	if data.CurrentTask.Name != "" {
-		newEvent := createEvent(data, startTime)
-		event := insertToCalendar(data, newEvent)
-
-		updatePrevTaskAlias(data)
-		fmt.Println("Task added to calendar:", event.HtmlLink)
 	}
 
 	taskName := name
@@ -72,11 +64,26 @@ func StartTask(c *cli.Context) error {
 		taskName += " " + desc
 	}
 
+	if data.CurrentTask.Name != "" {
+		since := getTimeSince(data.CurrentTask.Start)
+		if since.Seconds() < 60*5 {
+			data.CurrentTask.Name = taskName
+			data.CurrentTask.Start = startTime
+			writeToFile(data)
+			fmt.Println("Previous task lasted less the 5min, updating task instead...")
+			return nil
+		}
+		newEvent := createEvent(data, startTime)
+		insertToCalendar(data, newEvent)
+		fmt.Println("Added to calendar:", data.CurrentTask.Name)
+		updatePrevTaskAlias(data)
+	}
+
 	data.CurrentTask.Name = taskName
 	data.CurrentTask.Start = startTime
 	writeToFile(data)
 
-	fmt.Println("New task started: " + name)
+	fmt.Println("Started:", name, "@", formatTimeString(startTime))
 	return nil
 }
 
@@ -89,19 +96,21 @@ func EndTask(c *cli.Context) error {
 
 	endTime := c.String("time")
 	if endTime == "" {
-		endTime = getTime()
+		endTime = getTime(true)
 	} else {
 		endTime = stringToTime(endTime)
 	}
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data, newEvent)
+	insertToCalendar(data, newEvent)
+
+	name := data.CurrentTask.Name
 
 	updatePrevTaskAlias(data)
 	data.CurrentTask.Reset()
 	writeToFile(data)
 
-	fmt.Println("Task added to calendar:", event.HtmlLink)
+	fmt.Println("Added to calendar:", name)
 	return nil
 }
 
@@ -122,10 +131,22 @@ func EditCurrentTask(c *cli.Context) error {
 	if start != "" {
 		start = stringToTime(start)
 		data.CurrentTask.Start = start
-		fmt.Println("Start time set: " + formatTimeString(start))
+		fmt.Println("Start time set:", formatTimeString(start))
 	}
 
 	writeToFile(data)
+	return nil
+}
+
+func ClearCurrentTask(c *cli.Context) error {
+	data := readFile()
+	if data.CurrentTask.Name == "" {
+		fmt.Println("Current task already empty")
+		return nil
+	}
+	data.CurrentTask.Reset()
+	writeToFile(data)
+	fmt.Println("Current task cleared")
 	return nil
 }
 
@@ -144,7 +165,7 @@ func InsertTask(c *cli.Context) error {
 	data.CurrentTask.Start = startTime
 
 	newEvent := createEvent(data, endTime)
-	event := insertToCalendar(data, newEvent)
+	insertToCalendar(data, newEvent)
 
 	client, source := GetClient()
 	data = readFile()
@@ -152,7 +173,7 @@ func InsertTask(c *cli.Context) error {
 	updateToken(source)
 	writeToFile(data)
 
-	fmt.Println("Task added to calendar:", event.HtmlLink)
+	fmt.Println("Task added directly to calendar")
 	return nil
 }
 

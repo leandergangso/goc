@@ -12,17 +12,16 @@ import (
 
 const TIME_FORMAT = time.RFC3339
 
-func insertToCalendar(data *FileData, newEvent *calendar.Event) *calendar.Event {
+func insertToCalendar(data *FileData, newEvent *calendar.Event) {
 	client, source := GetClient()
 
-	event, err := client.Events.Insert(data.CalendarId, newEvent).Do()
+	_, err := client.Events.Insert(data.CalendarId, newEvent).Do()
 	if err != nil {
 		log.Fatalf("unable to add event to calendar: %v", err)
 	}
 
 	updateTotalDuration(client, data)
 	updateToken(source)
-	return event
 }
 
 func updateTotalDuration(client *calendar.Service, data *FileData) {
@@ -49,7 +48,7 @@ func getTodaysCalendarEvents(client *calendar.Service, data *FileData) *calendar
 	minTime := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
 
 	listCall.TimeMin(minTime.Format(TIME_FORMAT))
-	listCall.TimeMax(getTime())
+	listCall.TimeMax(getTime(false))
 
 	eventList, err := listCall.Do()
 	if err != nil {
@@ -73,8 +72,18 @@ func createEvent(data *FileData, endTime string) *calendar.Event {
 	}
 }
 
-func getTime() string {
-	return time.Now().Format(TIME_FORMAT)
+func getTime(roundForward bool) string {
+	now := time.Now()
+	t := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), 0, 0, now.Location())
+	diff := t.Minute() % 5
+	if diff == 0 {
+		return t.Format(TIME_FORMAT)
+	}
+	if roundForward {
+		return t.Add(time.Duration(5-diff) * time.Minute).Format(TIME_FORMAT)
+	} else {
+		return t.Add(time.Duration(-diff) * time.Minute).Format(TIME_FORMAT)
+	}
 }
 
 func getTimeSince(start string) time.Duration {
