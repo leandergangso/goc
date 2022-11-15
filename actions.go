@@ -240,6 +240,8 @@ func ShowAlias(c *cli.Context) error {
 	fmt.Println("prev" + ": " + data.TaskAlias["prev"])
 	fmt.Println("prev2" + ": " + data.TaskAlias["prev2"])
 	fmt.Println("prev3" + ": " + data.TaskAlias["prev3"])
+	fmt.Println("prev4" + ": " + data.TaskAlias["prev4"])
+	fmt.Println("prev5" + ": " + data.TaskAlias["prev5"])
 	return nil
 }
 
