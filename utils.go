@@ -96,6 +96,9 @@ func getTimeSince(start string) time.Duration {
 }
 
 func stringToTime(s string) string {
+	if len(s) == 3 {
+		s = "0" + s
+	}
 	now := time.Now()
 	timezone, _ := now.Zone()
 	fs := fmt.Sprintf("%d-%d-%d %v %v", now.Year(), now.Month(), now.Day(), s, timezone)
