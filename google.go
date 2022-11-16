@@ -68,9 +68,11 @@ func updateToken(source oauth2.TokenSource) {
 	sourceToken, err := source.Token()
 	if err != nil {
 		log.Printf("unable to get token from source: %v", err)
+		return
 	}
 	if sourceToken == nil {
 		log.Println("source token is nil")
+		return
 	}
 
 	saveToken(tokFile, sourceToken)
@@ -151,4 +153,9 @@ func saveToken(path string, token *oauth2.Token) {
 	if err != nil {
 		log.Fatalf("unable to encode token: %v", err)
 	}
+}
+
+func deleteTokenFile() {
+	path := getSharedPath()
+	os.Remove(path + TOKEN_FILE)
 }

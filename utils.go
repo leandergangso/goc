@@ -17,6 +17,7 @@ func insertToCalendar(data *FileData, newEvent *calendar.Event) {
 
 	_, err := client.Events.Insert(data.CalendarId, newEvent).Do()
 	if err != nil {
+		deleteTokenFile()
 		log.Fatalf("unable to add event to calendar: %v", err)
 	}
 
@@ -52,6 +53,7 @@ func getTodaysCalendarEvents(client *calendar.Service, data *FileData) *calendar
 
 	eventList, err := listCall.Do()
 	if err != nil {
+		deleteTokenFile()
 		log.Fatalf("unable to get calendar events: %v", err)
 	}
 

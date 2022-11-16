@@ -16,6 +16,11 @@ Simple CLI for tracking work hours into Google calendar.
 You can use this both for Mac and Windwos, but tweaks may be needed.
 Just follow the steps above and make changes where applicable.
 
+## Google tokens
+
+Note that, unless you put your google app in *production*, the token only lasts for 7 days.
+If the refresh token expires the `token.json` will be deleted and you will be prompted to reauthenticate on he next command.
+
 ## Usage examples (may differ)
 
 See help:
