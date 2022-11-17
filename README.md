@@ -18,10 +18,10 @@ Just follow the steps above and make changes where applicable.
 
 ## Google App
 
-Note that, unless you put your google app in *production*, the token only lasts for 7 days.
+Note that, unless you put your google app in *production*, the refresh token only lasts for 7 days.
 If the refresh token expires the `token.json` will be deleted and you will be prompted to reauthenticate on he next command.
 
-> You can set your application in production mode without a review, but will show a warning when users authenticate with your app.
+> You can set your application in production mode without a review, but will show a warning when you or other users authenticate with your app.
 
 ## Usage Examples
 

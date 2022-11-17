@@ -99,6 +99,7 @@ func writeCredentialsInstructionsAndExit(path string) {
 	fmt.Println("- Fill out all required fields")
 	fmt.Println("- For scopes, add `calendarlist.readonly` and `calendar.events`")
 	fmt.Println("- For test users, add your own email")
+	fmt.Println("- Set app in *production* to remove 7 day token limit")
 	fmt.Println("- Click on credentials and create credentials then select OAuth client ID")
 	fmt.Println("  - Set application type to Desktop app and follow the steps")
 	fmt.Println("  - Choose download JSON after creating the credential")
