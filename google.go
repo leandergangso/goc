@@ -156,6 +156,7 @@ func saveToken(path string, token *oauth2.Token) {
 	}
 }
 
+// ! not used
 func deleteTokenFile() {
 	path := getSharedPath()
 	os.Remove(path + TOKEN_FILE)
