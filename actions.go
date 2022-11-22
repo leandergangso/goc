@@ -173,7 +173,12 @@ func InsertTask(c *cli.Context) error {
 	updateToken(source)
 	writeToFile(data)
 
-	fmt.Println("Task added directly to calendar")
+	start := strings.Split(startTime, "T")
+	startFormated := fmt.Sprintf("%v", strings.Split(start[1], "+")[0][:5])
+	end := strings.Split(endTime, "T")
+	endFormated := fmt.Sprintf("%v", strings.Split(end[1], "+")[0][:5])
+
+	fmt.Println("Added to calendar:", data.CurrentTask.Name, "@", startFormated, "-", endFormated)
 	return nil
 }
 
