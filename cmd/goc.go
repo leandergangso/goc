@@ -34,6 +34,11 @@ func main() {
 
 var commands = []*cli.Command{
 	{
+		Name:   "test",
+		Usage:  "for testing",
+		Action: goc.Test,
+	},
+	{
 		Name:   "setup",
 		Usage:  "Setup Google calendar",
 		Action: goc.GoogleSetup,

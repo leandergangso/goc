@@ -10,6 +10,8 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
+// todo dont want google specific utils to be here
+
 const TIME_FORMAT = time.RFC3339
 
 func insertToCalendar(data *FileData, newEvent *calendar.Event) {
@@ -123,20 +125,29 @@ func checkAndUseAlias(name string, data *FileData) string {
 }
 
 func updatePrevTaskAlias(data *FileData) {
-	if _, ok := data.TaskAlias["prev4"]; ok {
-		data.TaskAlias["prev5"] = data.TaskAlias["prev4"]
+	val := data.CurrentTask.Name
+	val2, ok2 := data.TaskAlias["prev"]
+	if ok2 && val == val2 {
+		// avoid many multiple of the same task alias in the list
+		return
 	}
-	if _, ok := data.TaskAlias["prev3"]; ok {
-		data.TaskAlias["prev4"] = data.TaskAlias["prev3"]
+
+	if val, ok := data.TaskAlias["prev4"]; ok {
+		data.TaskAlias["prev5"] = val
 	}
-	if _, ok := data.TaskAlias["prev2"]; ok {
-		data.TaskAlias["prev3"] = data.TaskAlias["prev2"]
+	if val, ok := data.TaskAlias["prev3"]; ok {
+		data.TaskAlias["prev4"] = val
 	}
-	if _, ok := data.TaskAlias["prev"]; ok {
-		data.TaskAlias["prev2"] = data.TaskAlias["prev"]
+	if val, ok := data.TaskAlias["prev2"]; ok {
+		data.TaskAlias["prev3"] = val
 	}
+	if val, ok := data.TaskAlias["prev"]; ok {
+		data.TaskAlias["prev2"] = val
+	}
+
 	if data.TaskAlias == nil {
 		data.TaskAlias = make(map[string]string)
 	}
+
 	data.TaskAlias["prev"] = data.CurrentTask.Name
 }

@@ -10,6 +10,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+func Test(c *cli.Context) error {
+	data := readFile()
+	issues, err := JiraGetOwnIssues(c.Context, data)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(issues)
+
+	// for _, v := range issues {
+	// 	fmt.Println(v)
+	// }
+
+	return nil
+}
+
 func GoogleSetup(c *cli.Context) error {
 	client, _ := GetClient()
 	calList, err := client.CalendarList.List().Do()

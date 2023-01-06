@@ -18,8 +18,9 @@ type FileData struct {
 	DurationToday time.Duration
 	CurrentDate   CurDate
 	StatusOneline bool
+	UpdateToken   TokenStatus
 
-	UpdateToken TokenStatus
+	Jira *JiraIntegration
 }
 
 func (f *FileData) GetDurationToday(force bool) time.Duration {
@@ -30,11 +31,18 @@ func (f *FileData) GetDurationToday(force bool) time.Duration {
 			return f.DurationToday // updated on new events to cal
 		}
 	}
+
 	client, source := GetClient()
 	updateTotalDuration(client, f)
 	updateToken(source)
 	writeToFile(f)
+
 	return f.DurationToday
+}
+
+type JiraIntegration struct {
+	Username string
+	Token    string
 }
 
 type TokenStatus struct {
@@ -63,13 +71,16 @@ func getSharedPath() string {
 	if err != nil {
 		log.Fatalf("unable to get userConfigDir: %v", err)
 	}
+
 	sharedPath := configPath + SHARED_PATH
+
 	return sharedPath
 }
 
 func getFilePath() string {
 	commonPath := getSharedPath()
 	fullFilePath := commonPath + FILE_NAME
+
 	return fullFilePath
 }
 
@@ -87,6 +98,7 @@ func readFile() *FileData {
 	if err != nil && err != io.EOF {
 		log.Fatalf("unable to decode data from file: %v", err)
 	}
+
 	return data
 }
 
