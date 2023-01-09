@@ -53,7 +53,7 @@ func addAuthToRequest(data *FileData, req *http.Request) {
 
 func setJiraAuth(data *FileData) {
 	// get jira username
-	fmt.Print("\nWhat is your Jira username (email): ")
+	fmt.Print("What is your Jira username (email): ")
 	reader := bufio.NewReader(os.Stdin)
 	username, _ := reader.ReadString('\n')
 	username = strings.Replace(username, "\n", "", -1)

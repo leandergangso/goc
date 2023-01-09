@@ -321,6 +321,12 @@ func TaskStatus(c *cli.Context) error {
 func Jira(c *cli.Context) error {
 	data := readFile()
 
+	updateAuth := c.Bool("auth")
+	if updateAuth {
+		setJiraAuth(data)
+		return nil
+	}
+
 	res, err := JiraGetOwnIssues(c.Context, data)
 	if err != nil {
 		return err
@@ -364,7 +370,7 @@ func Jira(c *cli.Context) error {
 
 	task := res.Issues[index]
 
-	fmt.Print("Set start time (default: current): ")
+	fmt.Print("Set start time (HHMM) (default: current): ")
 	startTime, _ := reader.ReadString('\n')
 	startTime = strings.Replace(startTime, "\n", "", -1)
 
