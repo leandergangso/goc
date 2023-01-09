@@ -338,7 +338,11 @@ func Jira(c *cli.Context) error {
 		id := issue.Id
 		status := issue.Fields.Status.Name
 		summary := issue.Fields.Summary
-		taskOuput[status] = append(taskOuput[status], fmt.Sprintf("%v) %v - %v", i, id, summary))
+		active := ""
+		if data.CurrentTask.Name == "#"+id+" "+summary {
+			active = "*"
+		}
+		taskOuput[status] = append(taskOuput[status], fmt.Sprintf("%v) %v%v - %v", i, active, id, summary))
 	}
 
 	for status, statuses := range taskOuput {
