@@ -362,7 +362,7 @@ func Jira(c *cli.Context) error {
 		return nil
 	}
 
-	task := res.Issues[10]
+	task := res.Issues[index]
 
 	fmt.Print("Set start time (default: current): ")
 	startTime, _ := reader.ReadString('\n')
