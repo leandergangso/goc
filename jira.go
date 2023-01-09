@@ -10,19 +10,6 @@ import (
 	"strings"
 )
 
-// base url = https://houseofcontrol.atlassian.net/rest/api/3
-
-// working url with basic auth
-// GET https://houseofcontrol.atlassian.net/rest/api/3/search?maxResults=10&fields=description,status&jql=assignee=currentuser() AND status IN ("In Progress","To Do")
-// username:token
-
-// create token url:
-
-// get api values:
-// issues[].key
-// issues[].fields[].status.name
-// issues[].fields[].description.content[].content[].text
-
 // option to search self w/jql?
 // e.g goc jira -search 'assignee=currentuser() and status in ("In Progress")'
 
@@ -48,8 +35,8 @@ type issueRes struct {
 	Issues []struct {
 		Id     string `json:"key"`
 		Fields struct {
-			Text   string `json:"description.content.0.content.0.text"`
-			Status struct {
+			Summary string `json:"summary"`
+			Status  struct {
 				Name string `json:"name"`
 			} `json:"status"`
 		} `json:"fields"`
@@ -79,7 +66,7 @@ func setJiraAuth(data *FileData) {
 	fmt.Println()
 
 	// set data
-	data.Jira = &JiraIntegration{
+	data.Jira = &JiraAuth{
 		Username: username,
 		Token:    token,
 	}
@@ -88,8 +75,8 @@ func setJiraAuth(data *FileData) {
 }
 
 func JiraGetOwnIssues(ctx context.Context, data *FileData) (*issueRes, error) {
-	jql := url.PathEscape("assignee=currentuser() AND status IN ('In Progress','To Do')")
-	url := baseURL + "/search?maxResults=10&fields=description,status&jql=" + jql
+	jql := url.PathEscape("assignee=currentuser() AND status IN ('In Progress','To Do','In Review')")
+	url := baseURL + "/search?maxResults=10&fields=summary,status&jql=" + jql
 
 	req, err := GetRequest(ctx, false, url, nil)
 	if err != nil {

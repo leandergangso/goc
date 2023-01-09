@@ -34,11 +34,6 @@ func main() {
 
 var commands = []*cli.Command{
 	{
-		Name:   "test",
-		Usage:  "for testing",
-		Action: goc.Test,
-	},
-	{
 		Name:   "setup",
 		Usage:  "Setup Google calendar",
 		Action: goc.GoogleSetup,
@@ -56,6 +51,12 @@ var commands = []*cli.Command{
 			},
 		},
 		Action: goc.StartTask,
+	},
+	{
+		Name:    "jira",
+		Aliases: []string{"j"},
+		Usage:   "Track a task from jira",
+		Action:  goc.Jira,
 	},
 	{
 		Name:    "end",

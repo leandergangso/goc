@@ -19,8 +19,7 @@ type FileData struct {
 	CurrentDate   CurDate
 	StatusOneline bool
 	UpdateToken   TokenStatus
-
-	Jira *JiraIntegration
+	Jira          *JiraAuth
 }
 
 func (f *FileData) GetDurationToday(force bool) time.Duration {
@@ -40,7 +39,7 @@ func (f *FileData) GetDurationToday(force bool) time.Duration {
 	return f.DurationToday
 }
 
-type JiraIntegration struct {
+type JiraAuth struct {
 	Username string
 	Token    string
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -36,9 +35,6 @@ func SendRequest(req *http.Request, dataPointer any) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("body", string(body))
-	fmt.Println()
 
 	err = json.Unmarshal(body, dataPointer)
 	if err != nil {

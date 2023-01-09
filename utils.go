@@ -10,8 +10,6 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-// todo dont want google specific utils to be here
-
 const TIME_FORMAT = time.RFC3339
 
 func insertToCalendar(data *FileData, newEvent *calendar.Event) {
@@ -113,7 +111,7 @@ func stringToTime(s string) string {
 
 func formatTimeString(s string) string {
 	data := strings.Split(s, "T")
-	return fmt.Sprintf("%v %v", data[0], strings.Split(data[1], "+")[0][:5])
+	return fmt.Sprintf("%v", strings.Split(data[1], "+")[0][:5])
 }
 
 func checkAndUseAlias(name string, data *FileData) string {
