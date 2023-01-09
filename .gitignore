@@ -5,6 +5,7 @@ dist/
 *.txt
 *.json
 *.bak
+.secret
 
 update
 goc

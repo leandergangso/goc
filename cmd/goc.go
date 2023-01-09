@@ -53,6 +53,18 @@ var commands = []*cli.Command{
 		Action: goc.StartTask,
 	},
 	{
+		Name:    "jira",
+		Aliases: []string{"j"},
+		Usage:   "Track a task from jira",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "auth",
+				Usage: "Update credentials for jira",
+			},
+		},
+		Action: goc.Jira,
+	},
+	{
 		Name:    "end",
 		Aliases: []string{"e"},
 		Usage:   "End the currently tracked task",

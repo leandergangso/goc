@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -314,5 +315,92 @@ func TaskStatus(c *cli.Context) error {
 	fmt.Println("Start:", startTime)
 	fmt.Println("Duration:", taskDuration)
 	fmt.Println("Duration today:", totalDuration)
+	return nil
+}
+
+func Jira(c *cli.Context) error {
+	data := readFile()
+
+	updateAuth := c.Bool("auth")
+	if updateAuth {
+		setJiraAuth(data)
+		return nil
+	}
+
+	res, err := JiraGetOwnIssues(c.Context, data)
+	if err != nil {
+		return err
+	}
+
+	taskOuput := map[string][]string{}
+
+	for i, issue := range res.Issues {
+		id := issue.Id
+		status := issue.Fields.Status.Name
+		summary := issue.Fields.Summary
+		taskOuput[status] = append(taskOuput[status], fmt.Sprintf("%v) %v - %v", i, id, summary))
+	}
+
+	for status, statuses := range taskOuput {
+		fmt.Println("[" + status + "]")
+		for _, val := range statuses {
+			fmt.Println(val)
+		}
+		fmt.Println()
+	}
+
+	fmt.Print("Choose a task.nr to track: ")
+	reader := bufio.NewReader(os.Stdin)
+	taskNr, _ := reader.ReadString('\n')
+	taskNr = strings.Replace(taskNr, "\n", "", -1)
+
+	if taskNr == "" {
+		fmt.Println("Aborted, no task choosen")
+		return nil
+	}
+
+	index, err := strconv.Atoi(taskNr)
+	if err != nil {
+		fmt.Println("Invalid task.nr, needs to be a number")
+		return nil
+	} else if index < 0 || index > len(res.Issues) {
+		fmt.Println("Invalid task.nr, please choose a number from the list")
+		return nil
+	}
+
+	task := res.Issues[index]
+
+	fmt.Print("Set start time (HHMM) (default: current): ")
+	startTime, _ := reader.ReadString('\n')
+	startTime = strings.Replace(startTime, "\n", "", -1)
+
+	if startTime == "" {
+		startTime = getTime(false)
+	} else {
+		startTime = stringToTime(startTime)
+	}
+
+	taskName := "#" + task.Id + " " + task.Fields.Summary
+
+	if data.CurrentTask.Name != "" {
+		since := getTimeSince(data.CurrentTask.Start)
+		if since.Seconds() < 60*5 {
+			data.CurrentTask.Name = taskName
+			data.CurrentTask.Start = startTime
+			writeToFile(data)
+			fmt.Println("Previous task lasted less the 5min, updating task instead...")
+			return nil
+		}
+		newEvent := createEvent(data, startTime)
+		insertToCalendar(data, newEvent)
+		fmt.Println("Added to calendar:", data.CurrentTask.Name)
+		updatePrevTaskAlias(data)
+	}
+
+	data.CurrentTask.Name = taskName
+	data.CurrentTask.Start = startTime
+	writeToFile(data)
+
+	fmt.Println("Started:", task.Id, "@", formatTimeString(startTime))
 	return nil
 }
