@@ -348,13 +348,21 @@ func Jira(c *cli.Context) error {
 	taskNr, _ := reader.ReadString('\n')
 	taskNr = strings.Replace(taskNr, "\n", "", -1)
 
-	index, err := strconv.Atoi(taskNr)
-	if err != nil {
-		fmt.Println()
-		return err
+	if taskNr == "" {
+		fmt.Println("Aborted, no task choosen")
+		return nil
 	}
 
-	task := res.Issues[index]
+	index, err := strconv.Atoi(taskNr)
+	if err != nil {
+		fmt.Println("Invalid task.nr, needs to be a number")
+		return nil
+	} else if index < 0 || index > len(res.Issues) {
+		fmt.Println("Invalid task.nr, please choose a number from the list")
+		return nil
+	}
+
+	task := res.Issues[10]
 
 	fmt.Print("Set start time (default: current): ")
 	startTime, _ := reader.ReadString('\n')
