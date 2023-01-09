@@ -59,7 +59,7 @@ var commands = []*cli.Command{
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "auth",
-				Usage: "Update email/token for jira",
+				Usage: "Update credentials for jira",
 			},
 		},
 		Action: goc.Jira,
