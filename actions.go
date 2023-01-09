@@ -366,7 +366,7 @@ func Jira(c *cli.Context) error {
 		startTime = stringToTime(startTime)
 	}
 
-	taskName := task.Id + " " + task.Fields.Summary
+	taskName := "#" + task.Id + " " + task.Fields.Summary
 
 	if data.CurrentTask.Name != "" {
 		since := getTimeSince(data.CurrentTask.Start)
