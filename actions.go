@@ -332,6 +332,11 @@ func Jira(c *cli.Context) error {
 		return err
 	}
 
+	if len(res.Issues) == 0 {
+		fmt.Println("No tasks assigned to you, good work!")
+		return nil
+	}
+
 	taskOuput := map[string][]string{}
 
 	for i, issue := range res.Issues {

@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"strings"
 )
 
 func GetRequest(ctx context.Context, isPOST bool, url string, body []byte) (*http.Request, error) {
@@ -30,6 +33,11 @@ func SendRequest(req *http.Request, dataPointer any) error {
 		return err
 	}
 	defer res.Body.Close()
+
+	if !strings.Contains(res.Status, "OK") {
+		fmt.Println("Unauthorized access, update Jira credentials.")
+		os.Exit(0)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
