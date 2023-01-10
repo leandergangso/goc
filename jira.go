@@ -75,7 +75,7 @@ func setJiraAuth(data *FileData) {
 }
 
 func JiraGetOwnIssues(ctx context.Context, data *FileData) (*issueRes, error) {
-	jql := url.PathEscape("assignee=currentuser() AND status IN ('In Progress','To Do','In Review')")
+	jql := url.PathEscape("(assignee=currentuser() OR responsible=currentuser()) AND status IN ('In Progress','To Do','In Review')")
 	url := baseURL + "/search?maxResults=10&fields=summary,status&jql=" + jql
 
 	req, err := GetRequest(ctx, false, url, nil)
