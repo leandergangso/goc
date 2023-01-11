@@ -30,6 +30,7 @@ import (
 // }
 
 const baseURL string = "https://houseofcontrol.atlassian.net/rest/api/3"
+const browseURL string = "https://houseofcontrol.atlassian.net/browse/"
 
 type issueRes struct {
 	Issues []struct {

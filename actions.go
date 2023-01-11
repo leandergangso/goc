@@ -337,6 +337,14 @@ func Jira(c *cli.Context) error {
 		return nil
 	}
 
+	taskURLList := c.Bool("url")
+	if taskURLList {
+		for _, issue := range res.Issues {
+			fmt.Println(issue.Id, "-", browseURL+issue.Id)
+		}
+		return nil
+	}
+
 	taskOuput := map[string][]string{}
 
 	for i, issue := range res.Issues {

@@ -61,6 +61,11 @@ var commands = []*cli.Command{
 				Name:  "auth",
 				Usage: "Update credentials for jira",
 			},
+			&cli.BoolFlag{
+				Name:    "url",
+				Aliases: []string{"u"},
+				Usage:   "Show tasks with URL",
+			},
 		},
 		Action: goc.Jira,
 	},
